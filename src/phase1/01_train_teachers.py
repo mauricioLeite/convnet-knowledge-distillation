@@ -21,9 +21,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.teachers import TeacherModel
-from src.train import evaluate, train_teacher_classifier, train_teacher_finetune
-from src.utils import (
+from src.phase1.teachers import TeacherModel
+from src.phase1.train import evaluate, train_teacher_classifier, train_teacher_finetune
+from src.phase1.utils import (
     IMAGENET_MEAN,
     IMAGENET_STD,
     compute_flops,

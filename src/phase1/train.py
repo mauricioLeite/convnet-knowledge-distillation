@@ -10,7 +10,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 
-from src.teachers import TeacherModel
+from src.phase1.teachers import TeacherModel
 
 
 def _resolve_device(device: str | torch.device) -> torch.device:

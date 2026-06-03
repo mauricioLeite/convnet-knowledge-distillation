@@ -169,6 +169,16 @@ def download_flowers102(force: bool = False, retries: int = 3) -> None:
 
 
 
+def download_oxford_pets() -> None:
+    print("\n== Oxford-IIIT Pet ==")
+    from torchvision import datasets
+
+    root = DATA_ROOT / "oxford-pets"
+    datasets.OxfordIIITPet(root=root, split="trainval", download=True)
+    datasets.OxfordIIITPet(root=root, split="test", download=True)
+    print(f"[ok] Oxford-IIIT Pet ready at {root}")
+
+
 def download_tiny_imagenet(force: bool = False) -> None:
     print("\n== Tiny ImageNet ==")
     archive_path = DATA_ROOT / "tiny-imagenet-200.zip"
@@ -357,8 +367,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--datasets",
         nargs="+",
-        default=["cifar100", "tiny_imagenet", "flowers102", "stanford_cars"],
-        choices=["cifar100", "tiny_imagenet", "flowers102", "stanford_cars"],
+        default=["cifar100", "tiny_imagenet", "flowers102", "stanford_cars", "oxford_pets"],
+        choices=["cifar100", "tiny_imagenet", "flowers102", "stanford_cars", "oxford_pets"],
         help="Datasets to download. Defaults to all supported datasets.",
     )
     parser.add_argument(
@@ -384,6 +394,7 @@ def main() -> None:
         "tiny_imagenet": lambda: download_tiny_imagenet(force=args.force),
         "flowers102": lambda: download_flowers102(force=args.force),
         "stanford_cars": lambda: download_stanford_cars(force=args.force),
+        "oxford_pets": download_oxford_pets,
     }
 
     failures = []

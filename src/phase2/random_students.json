@@ -1,0 +1,2210 @@
+[
+  {
+    "id": "arch1_3conv_narrow__resnet_td2048",
+    "arch": "arch1_3conv_narrow",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "num_classes": 37,
+    "n_convs": 3,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 16,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 16,
+            "out_channels": 32,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "Dropout",
+            "p": 0.3
+          }
+        ]
+      },
+      {
+        "avgpool": [
+          {
+            "type": "AdaptiveAvgPool2d",
+            "output_size": [
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "flatten": [
+          {
+            "type": "flatten"
+          }
+        ]
+      },
+      {
+        "project": [
+          {
+            "type": "linear",
+            "in_features": 64,
+            "out_features": 2048
+          }
+        ]
+      },
+      {
+        "classifier": [
+          {
+            "type": "linear",
+            "in_features": 2048,
+            "out_features": 37
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch1_3conv_narrow__convnext_td1024",
+    "arch": "arch1_3conv_narrow",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "num_classes": 37,
+    "n_convs": 3,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 16,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 16,
+            "out_channels": 32,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "Dropout",
+            "p": 0.3
+          }
+        ]
+      },
+      {
+        "avgpool": [
+          {
+            "type": "AdaptiveAvgPool2d",
+            "output_size": [
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "flatten": [
+          {
+            "type": "flatten"
+          }
+        ]
+      },
+      {
+        "project": [
+          {
+            "type": "linear",
+            "in_features": 64,
+            "out_features": 1024
+          }
+        ]
+      },
+      {
+        "classifier": [
+          {
+            "type": "linear",
+            "in_features": 1024,
+            "out_features": 37
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch1_3conv_narrow__vgg_td512",
+    "arch": "arch1_3conv_narrow",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "num_classes": 37,
+    "n_convs": 3,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 16,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 16,
+            "out_channels": 32,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "Dropout",
+            "p": 0.3
+          }
+        ]
+      },
+      {
+        "avgpool": [
+          {
+            "type": "AdaptiveAvgPool2d",
+            "output_size": [
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "flatten": [
+          {
+            "type": "flatten"
+          }
+        ]
+      },
+      {
+        "project": [
+          {
+            "type": "linear",
+            "in_features": 64,
+            "out_features": 512
+          }
+        ]
+      },
+      {
+        "classifier": [
+          {
+            "type": "linear",
+            "in_features": 512,
+            "out_features": 37
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch2_3conv__resnet_td2048",
+    "arch": "arch2_3conv",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "num_classes": 37,
+    "n_convs": 3,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 32,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "Dropout",
+            "p": 0.3
+          }
+        ]
+      },
+      {
+        "avgpool": [
+          {
+            "type": "AdaptiveAvgPool2d",
+            "output_size": [
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "flatten": [
+          {
+            "type": "flatten"
+          }
+        ]
+      },
+      {
+        "project": [
+          {
+            "type": "linear",
+            "in_features": 128,
+            "out_features": 2048
+          }
+        ]
+      },
+      {
+        "classifier": [
+          {
+            "type": "linear",
+            "in_features": 2048,
+            "out_features": 37
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch2_3conv__convnext_td1024",
+    "arch": "arch2_3conv",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "num_classes": 37,
+    "n_convs": 3,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 32,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "Dropout",
+            "p": 0.3
+          }
+        ]
+      },
+      {
+        "avgpool": [
+          {
+            "type": "AdaptiveAvgPool2d",
+            "output_size": [
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "flatten": [
+          {
+            "type": "flatten"
+          }
+        ]
+      },
+      {
+        "project": [
+          {
+            "type": "linear",
+            "in_features": 128,
+            "out_features": 1024
+          }
+        ]
+      },
+      {
+        "classifier": [
+          {
+            "type": "linear",
+            "in_features": 1024,
+            "out_features": 37
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch2_3conv__vgg_td512",
+    "arch": "arch2_3conv",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "num_classes": 37,
+    "n_convs": 3,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 32,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "Dropout",
+            "p": 0.3
+          }
+        ]
+      },
+      {
+        "avgpool": [
+          {
+            "type": "AdaptiveAvgPool2d",
+            "output_size": [
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "flatten": [
+          {
+            "type": "flatten"
+          }
+        ]
+      },
+      {
+        "project": [
+          {
+            "type": "linear",
+            "in_features": 128,
+            "out_features": 512
+          }
+        ]
+      },
+      {
+        "classifier": [
+          {
+            "type": "linear",
+            "in_features": 512,
+            "out_features": 37
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch3_4conv_narrow__resnet_td2048",
+    "arch": "arch3_4conv_narrow",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "num_classes": 37,
+    "n_convs": 4,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 32,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 128,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "Dropout",
+            "p": 0.3
+          }
+        ]
+      },
+      {
+        "avgpool": [
+          {
+            "type": "AdaptiveAvgPool2d",
+            "output_size": [
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "flatten": [
+          {
+            "type": "flatten"
+          }
+        ]
+      },
+      {
+        "project": [
+          {
+            "type": "linear",
+            "in_features": 256,
+            "out_features": 2048
+          }
+        ]
+      },
+      {
+        "classifier": [
+          {
+            "type": "linear",
+            "in_features": 2048,
+            "out_features": 37
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch3_4conv_narrow__convnext_td1024",
+    "arch": "arch3_4conv_narrow",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "num_classes": 37,
+    "n_convs": 4,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 32,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 128,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "Dropout",
+            "p": 0.3
+          }
+        ]
+      },
+      {
+        "avgpool": [
+          {
+            "type": "AdaptiveAvgPool2d",
+            "output_size": [
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "flatten": [
+          {
+            "type": "flatten"
+          }
+        ]
+      },
+      {
+        "project": [
+          {
+            "type": "linear",
+            "in_features": 256,
+            "out_features": 1024
+          }
+        ]
+      },
+      {
+        "classifier": [
+          {
+            "type": "linear",
+            "in_features": 1024,
+            "out_features": 37
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch3_4conv_narrow__vgg_td512",
+    "arch": "arch3_4conv_narrow",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "num_classes": 37,
+    "n_convs": 4,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 32,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 128,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "Dropout",
+            "p": 0.3
+          }
+        ]
+      },
+      {
+        "avgpool": [
+          {
+            "type": "AdaptiveAvgPool2d",
+            "output_size": [
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "flatten": [
+          {
+            "type": "flatten"
+          }
+        ]
+      },
+      {
+        "project": [
+          {
+            "type": "linear",
+            "in_features": 256,
+            "out_features": 512
+          }
+        ]
+      },
+      {
+        "classifier": [
+          {
+            "type": "linear",
+            "in_features": 512,
+            "out_features": 37
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch4_4conv__resnet_td2048",
+    "arch": "arch4_4conv",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "num_classes": 37,
+    "n_convs": 4,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 64,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 128,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 256,
+            "out_channels": 384,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "Dropout",
+            "p": 0.3
+          }
+        ]
+      },
+      {
+        "avgpool": [
+          {
+            "type": "AdaptiveAvgPool2d",
+            "output_size": [
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "flatten": [
+          {
+            "type": "flatten"
+          }
+        ]
+      },
+      {
+        "project": [
+          {
+            "type": "linear",
+            "in_features": 384,
+            "out_features": 2048
+          }
+        ]
+      },
+      {
+        "classifier": [
+          {
+            "type": "linear",
+            "in_features": 2048,
+            "out_features": 37
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch4_4conv__convnext_td1024",
+    "arch": "arch4_4conv",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "num_classes": 37,
+    "n_convs": 4,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 64,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 128,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 256,
+            "out_channels": 384,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "Dropout",
+            "p": 0.3
+          }
+        ]
+      },
+      {
+        "avgpool": [
+          {
+            "type": "AdaptiveAvgPool2d",
+            "output_size": [
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "flatten": [
+          {
+            "type": "flatten"
+          }
+        ]
+      },
+      {
+        "project": [
+          {
+            "type": "linear",
+            "in_features": 384,
+            "out_features": 1024
+          }
+        ]
+      },
+      {
+        "classifier": [
+          {
+            "type": "linear",
+            "in_features": 1024,
+            "out_features": 37
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch4_4conv__vgg_td512",
+    "arch": "arch4_4conv",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "num_classes": 37,
+    "n_convs": 4,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 64,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 128,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 256,
+            "out_channels": 384,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "Dropout",
+            "p": 0.3
+          }
+        ]
+      },
+      {
+        "avgpool": [
+          {
+            "type": "AdaptiveAvgPool2d",
+            "output_size": [
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "flatten": [
+          {
+            "type": "flatten"
+          }
+        ]
+      },
+      {
+        "project": [
+          {
+            "type": "linear",
+            "in_features": 384,
+            "out_features": 512
+          }
+        ]
+      },
+      {
+        "classifier": [
+          {
+            "type": "linear",
+            "in_features": 512,
+            "out_features": 37
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch5_5conv__resnet_td2048",
+    "arch": "arch5_5conv",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "num_classes": 37,
+    "n_convs": 5,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 64,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 128,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 256,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer5": [
+          {
+            "type": "conv2d",
+            "in_channels": 256,
+            "out_channels": 512,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "Dropout",
+            "p": 0.3
+          }
+        ]
+      },
+      {
+        "avgpool": [
+          {
+            "type": "AdaptiveAvgPool2d",
+            "output_size": [
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "flatten": [
+          {
+            "type": "flatten"
+          }
+        ]
+      },
+      {
+        "project": [
+          {
+            "type": "linear",
+            "in_features": 512,
+            "out_features": 2048
+          }
+        ]
+      },
+      {
+        "classifier": [
+          {
+            "type": "linear",
+            "in_features": 2048,
+            "out_features": 37
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch5_5conv__convnext_td1024",
+    "arch": "arch5_5conv",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "num_classes": 37,
+    "n_convs": 5,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 64,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 128,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 256,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer5": [
+          {
+            "type": "conv2d",
+            "in_channels": 256,
+            "out_channels": 512,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "Dropout",
+            "p": 0.3
+          }
+        ]
+      },
+      {
+        "avgpool": [
+          {
+            "type": "AdaptiveAvgPool2d",
+            "output_size": [
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "flatten": [
+          {
+            "type": "flatten"
+          }
+        ]
+      },
+      {
+        "project": [
+          {
+            "type": "linear",
+            "in_features": 512,
+            "out_features": 1024
+          }
+        ]
+      },
+      {
+        "classifier": [
+          {
+            "type": "linear",
+            "in_features": 1024,
+            "out_features": 37
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch5_5conv__vgg_td512",
+    "arch": "arch5_5conv",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "num_classes": 37,
+    "n_convs": 5,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 64,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 128,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 256,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer5": [
+          {
+            "type": "conv2d",
+            "in_channels": 256,
+            "out_channels": 512,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "Dropout",
+            "p": 0.3
+          }
+        ]
+      },
+      {
+        "avgpool": [
+          {
+            "type": "AdaptiveAvgPool2d",
+            "output_size": [
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "flatten": [
+          {
+            "type": "flatten"
+          }
+        ]
+      },
+      {
+        "project": [
+          {
+            "type": "linear",
+            "in_features": 512,
+            "out_features": 512
+          }
+        ]
+      },
+      {
+        "classifier": [
+          {
+            "type": "linear",
+            "in_features": 512,
+            "out_features": 37
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch6_6conv_largest__resnet_td2048",
+    "arch": "arch6_6conv_largest",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "num_classes": 37,
+    "n_convs": 6,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 64,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 128,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 1,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 128,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer5": [
+          {
+            "type": "conv2d",
+            "in_channels": 256,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer6": [
+          {
+            "type": "conv2d",
+            "in_channels": 256,
+            "out_channels": 512,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "Dropout",
+            "p": 0.3
+          }
+        ]
+      },
+      {
+        "avgpool": [
+          {
+            "type": "AdaptiveAvgPool2d",
+            "output_size": [
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "flatten": [
+          {
+            "type": "flatten"
+          }
+        ]
+      },
+      {
+        "project": [
+          {
+            "type": "linear",
+            "in_features": 512,
+            "out_features": 2048
+          }
+        ]
+      },
+      {
+        "classifier": [
+          {
+            "type": "linear",
+            "in_features": 2048,
+            "out_features": 37
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch6_6conv_largest__convnext_td1024",
+    "arch": "arch6_6conv_largest",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "num_classes": 37,
+    "n_convs": 6,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 64,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 128,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 1,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 128,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer5": [
+          {
+            "type": "conv2d",
+            "in_channels": 256,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer6": [
+          {
+            "type": "conv2d",
+            "in_channels": 256,
+            "out_channels": 512,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "Dropout",
+            "p": 0.3
+          }
+        ]
+      },
+      {
+        "avgpool": [
+          {
+            "type": "AdaptiveAvgPool2d",
+            "output_size": [
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "flatten": [
+          {
+            "type": "flatten"
+          }
+        ]
+      },
+      {
+        "project": [
+          {
+            "type": "linear",
+            "in_features": 512,
+            "out_features": 1024
+          }
+        ]
+      },
+      {
+        "classifier": [
+          {
+            "type": "linear",
+            "in_features": 1024,
+            "out_features": 37
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch6_6conv_largest__vgg_td512",
+    "arch": "arch6_6conv_largest",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "num_classes": 37,
+    "n_convs": 6,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 64,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 128,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 1,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 128,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer5": [
+          {
+            "type": "conv2d",
+            "in_channels": 256,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer6": [
+          {
+            "type": "conv2d",
+            "in_channels": 256,
+            "out_channels": 512,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "Dropout",
+            "p": 0.3
+          }
+        ]
+      },
+      {
+        "avgpool": [
+          {
+            "type": "AdaptiveAvgPool2d",
+            "output_size": [
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "flatten": [
+          {
+            "type": "flatten"
+          }
+        ]
+      },
+      {
+        "project": [
+          {
+            "type": "linear",
+            "in_features": 512,
+            "out_features": 512
+          }
+        ]
+      },
+      {
+        "classifier": [
+          {
+            "type": "linear",
+            "in_features": 512,
+            "out_features": 37
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -310,6 +310,12 @@ def get_dataloaders(
             train_transform,
             eval_transform,
         )
+    elif canonical_name == "oxford-pets":
+        datasets_and_classes = _load_oxford_pets(
+            root,
+            train_transform,
+            eval_transform,
+        )
     else:
         raise ValueError(f"Unsupported dataset '{dataset_name}'.")
 
@@ -347,6 +353,10 @@ def _normalize_dataset_name(dataset_name: str) -> str:
         "tinyimagenet": "tiny-imagenet-200",
         "tiny-imagenet": "tiny-imagenet-200",
         "tiny-imagenet-200": "tiny-imagenet-200",
+        "pets": "oxford-pets",
+        "oxfordpets": "oxford-pets",
+        "oxford-pets": "oxford-pets",
+        "oxford-iiit-pet": "oxford-pets",
     }
     return aliases.get(name, name)
 
@@ -580,6 +590,42 @@ def _load_tiny_imagenet(
         val_root=val_root,
         class_to_idx=train_full.class_to_idx,
         transform=eval_transform,
+    )
+    train_indices, val_indices = _split_indices(len(train_full))
+    return (
+        _make_subset(train_full, train_indices),
+        _make_subset(val_full, val_indices),
+        test_dataset,
+        len(train_full.classes),
+    )
+
+
+def _load_oxford_pets(
+    data_root: Path,
+    train_transform: transforms.Compose,
+    eval_transform: transforms.Compose,
+) -> tuple[Dataset, Dataset, Dataset, int]:
+    root = _resolve_dataset_root(data_root, "oxford-pets")
+    train_full = datasets.OxfordIIITPet(
+        root=str(root),
+        split="trainval",
+        target_types="category",
+        transform=train_transform,
+        download=False,
+    )
+    val_full = datasets.OxfordIIITPet(
+        root=str(root),
+        split="trainval",
+        target_types="category",
+        transform=eval_transform,
+        download=False,
+    )
+    test_dataset = datasets.OxfordIIITPet(
+        root=str(root),
+        split="test",
+        target_types="category",
+        transform=eval_transform,
+        download=False,
     )
     train_indices, val_indices = _split_indices(len(train_full))
     return (

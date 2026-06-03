@@ -1,4 +1,6 @@
-from student import Student
+from phase1.teachers import TeacherModel
+
+from .student import Student
 from torch import nn
 import torch
 from torch.nn import functional as F
@@ -20,7 +22,7 @@ def teacher_encode(model: nn.Module, x: DataLoader, kind: str, post_gap: bool = 
         if post_gap:
             x = model.avgpool(x)
     elif kind == "vgg16":
-        x = model.features(x),
+        x = model.features(x)
         if post_gap:
             x = F.adaptive_avg_pool2d(x, 1)
     else:
@@ -28,7 +30,7 @@ def teacher_encode(model: nn.Module, x: DataLoader, kind: str, post_gap: bool = 
     return torch.flatten(x, 1)
 
 
-def eval_distill_mse(teacher_model, student: Student,  loader, kind: str, device: torch.device) -> float:
+def eval_distill_mse(teacher_model: TeacherModel, student: Student,  loader, kind: str, device: torch.device) -> float:
     """Evaluates the MSE between the teacher's post GAP features and the student's features for a batch of images."""
     student.eval()
     total = 0.0
@@ -44,7 +46,7 @@ def eval_distill_mse(teacher_model, student: Student,  loader, kind: str, device
     return total / n
 
 
-def destill_encoder_features(teacher, student: Student, train_loader, validation_loader,
+def destill_encoder_features(teacher: TeacherModel, student: Student, train_loader, validation_loader,
                      kind: str, epochs: int, save_path: str, device: torch.device, lr: float = 1e-3, weight_decay: float = 1e-2) -> float:
     teacher.to(device).eval()
     for param in teacher.parameters():

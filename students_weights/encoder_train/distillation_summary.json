@@ -1,0 +1,164 @@
+[
+  {
+    "id": "arch1_3conv_narrow__resnet_td2048",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "n_convs": 3,
+    "trainable_params": 234549,
+    "best_val_mse": 0.0005200649763497969,
+    "weights": "C:\\Estudos\\Unicamp\\9_semestre\\projeto_dupla_mc934\\convnet-knowledge-distillation\\students_weights\\encoder_train\\arch1_3conv_narrow__resnet_td2048.pth"
+  },
+  {
+    "id": "arch1_3conv_narrow__convnext_td1024",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "n_convs": 3,
+    "trainable_params": 130101,
+    "best_val_mse": 0.0005154374850225513,
+    "weights": "C:\\Estudos\\Unicamp\\9_semestre\\projeto_dupla_mc934\\convnet-knowledge-distillation\\students_weights\\encoder_train\\arch1_3conv_narrow__convnext_td1024.pth"
+  },
+  {
+    "id": "arch1_3conv_narrow__vgg_td512",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "n_convs": 3,
+    "trainable_params": 77877,
+    "best_val_mse": 0.0011754561995115616,
+    "weights": "C:\\Estudos\\Unicamp\\9_semestre\\projeto_dupla_mc934\\convnet-knowledge-distillation\\students_weights\\encoder_train\\arch1_3conv_narrow__vgg_td512.pth"
+  },
+  {
+    "id": "arch2_3conv__resnet_td2048",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "n_convs": 3,
+    "trainable_params": 437317,
+    "best_val_mse": 0.0004914560527338282,
+    "weights": "C:\\Estudos\\Unicamp\\9_semestre\\projeto_dupla_mc934\\convnet-knowledge-distillation\\students_weights\\encoder_train\\arch2_3conv__resnet_td2048.pth"
+  },
+  {
+    "id": "arch2_3conv__convnext_td1024",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "n_convs": 3,
+    "trainable_params": 267333,
+    "best_val_mse": 0.0005038303080136361,
+    "weights": "C:\\Estudos\\Unicamp\\9_semestre\\projeto_dupla_mc934\\convnet-knowledge-distillation\\students_weights\\encoder_train\\arch2_3conv__convnext_td1024.pth"
+  },
+  {
+    "id": "arch2_3conv__vgg_td512",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "n_convs": 3,
+    "trainable_params": 182341,
+    "best_val_mse": 0.0010755848665924175,
+    "weights": "C:\\Estudos\\Unicamp\\9_semestre\\projeto_dupla_mc934\\convnet-knowledge-distillation\\students_weights\\encoder_train\\arch2_3conv__vgg_td512.pth"
+  },
+  {
+    "id": "arch3_4conv_narrow__resnet_td2048",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "n_convs": 4,
+    "trainable_params": 994885,
+    "best_val_mse": 0.0004609516586440251,
+    "weights": "C:\\Estudos\\Unicamp\\9_semestre\\projeto_dupla_mc934\\convnet-knowledge-distillation\\students_weights\\encoder_train\\arch3_4conv_narrow__resnet_td2048.pth"
+  },
+  {
+    "id": "arch3_4conv_narrow__convnext_td1024",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "n_convs": 4,
+    "trainable_params": 693829,
+    "best_val_mse": 0.00048554484459126127,
+    "weights": "C:\\Estudos\\Unicamp\\9_semestre\\projeto_dupla_mc934\\convnet-knowledge-distillation\\students_weights\\encoder_train\\arch3_4conv_narrow__convnext_td1024.pth"
+  },
+  {
+    "id": "arch3_4conv_narrow__vgg_td512",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "n_convs": 4,
+    "trainable_params": 543301,
+    "best_val_mse": 0.0009670413590198302,
+    "weights": "C:\\Estudos\\Unicamp\\9_semestre\\projeto_dupla_mc934\\convnet-knowledge-distillation\\students_weights\\encoder_train\\arch3_4conv_narrow__vgg_td512.pth"
+  },
+  {
+    "id": "arch4_4conv__resnet_td2048",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "n_convs": 4,
+    "trainable_params": 2128741,
+    "best_val_mse": 0.0004499952850417922,
+    "weights": "C:\\Estudos\\Unicamp\\9_semestre\\projeto_dupla_mc934\\convnet-knowledge-distillation\\students_weights\\encoder_train\\arch4_4conv__resnet_td2048.pth"
+  },
+  {
+    "id": "arch4_4conv__convnext_td1024",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "n_convs": 4,
+    "trainable_params": 1696613,
+    "best_val_mse": 0.0004785128125070554,
+    "weights": "C:\\Estudos\\Unicamp\\9_semestre\\projeto_dupla_mc934\\convnet-knowledge-distillation\\students_weights\\encoder_train\\arch4_4conv__convnext_td1024.pth"
+  },
+  {
+    "id": "arch4_4conv__vgg_td512",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "n_convs": 4,
+    "trainable_params": 1480549,
+    "best_val_mse": 0.000907757471356055,
+    "weights": "C:\\Estudos\\Unicamp\\9_semestre\\projeto_dupla_mc934\\convnet-knowledge-distillation\\students_weights\\encoder_train\\arch4_4conv__vgg_td512.pth"
+  },
+  {
+    "id": "arch5_5conv__resnet_td2048",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "n_convs": 5,
+    "trainable_params": 3276389,
+    "best_val_mse": 0.00043582439463099706,
+    "weights": "C:\\Estudos\\Unicamp\\9_semestre\\projeto_dupla_mc934\\convnet-knowledge-distillation\\students_weights\\encoder_train\\arch5_5conv__resnet_td2048.pth"
+  },
+  {
+    "id": "arch5_5conv__convnext_td1024",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "n_convs": 5,
+    "trainable_params": 2713189,
+    "best_val_mse": 0.0004820334269543705,
+    "weights": "C:\\Estudos\\Unicamp\\9_semestre\\projeto_dupla_mc934\\convnet-knowledge-distillation\\students_weights\\encoder_train\\arch5_5conv__convnext_td1024.pth"
+  },
+  {
+    "id": "arch5_5conv__vgg_td512",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "n_convs": 5,
+    "trainable_params": 2431589,
+    "best_val_mse": 0.0008584799007107706,
+    "weights": "C:\\Estudos\\Unicamp\\9_semestre\\projeto_dupla_mc934\\convnet-knowledge-distillation\\students_weights\\encoder_train\\arch5_5conv__vgg_td512.pth"
+  },
+  {
+    "id": "arch6_6conv_largest__resnet_td2048",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "n_convs": 6,
+    "trainable_params": 3424101,
+    "best_val_mse": 0.00043252693064024913,
+    "weights": "C:\\Estudos\\Unicamp\\9_semestre\\projeto_dupla_mc934\\convnet-knowledge-distillation\\students_weights\\encoder_train\\arch6_6conv_largest__resnet_td2048.pth"
+  },
+  {
+    "id": "arch6_6conv_largest__convnext_td1024",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "n_convs": 6,
+    "trainable_params": 2860901,
+    "best_val_mse": 0.0004913083419365728,
+    "weights": "C:\\Estudos\\Unicamp\\9_semestre\\projeto_dupla_mc934\\convnet-knowledge-distillation\\students_weights\\encoder_train\\arch6_6conv_largest__convnext_td1024.pth"
+  },
+  {
+    "id": "arch6_6conv_largest__vgg_td512",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "n_convs": 6,
+    "trainable_params": 2579301,
+    "best_val_mse": 0.0008410263259935638,
+    "weights": "C:\\Estudos\\Unicamp\\9_semestre\\projeto_dupla_mc934\\convnet-knowledge-distillation\\students_weights\\encoder_train\\arch6_6conv_largest__vgg_td512.pth"
+  }
+]

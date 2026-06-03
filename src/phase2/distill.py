@@ -1,4 +1,4 @@
-from phase1.teachers import TeacherModel
+from src.phase1.teachers import TeacherModel
 
 from .student import Student
 from torch import nn

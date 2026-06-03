@@ -173,10 +173,10 @@ def download_oxford_pets() -> None:
     print("\n== Oxford-IIIT Pet ==")
     from torchvision import datasets
 
-    root = DATA_ROOT / "oxford-pets"
+    root = DATA_ROOT
     datasets.OxfordIIITPet(root=root, split="trainval", download=True)
     datasets.OxfordIIITPet(root=root, split="test", download=True)
-    print(f"[ok] Oxford-IIIT Pet ready at {root}")
+    print(f"[ok] Oxford-IIIT Pet ready at {root / 'oxford-iiit-pet'}")
 
 
 def download_tiny_imagenet(force: bool = False) -> None:

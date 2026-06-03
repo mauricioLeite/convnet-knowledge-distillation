@@ -1,1 +1,1 @@
-from student import Student
+from .student import Student

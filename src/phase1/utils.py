@@ -605,12 +605,24 @@ def _load_oxford_pets(
     train_transform: transforms.Compose,
     eval_transform: transforms.Compose,
 ) -> tuple[Dataset, Dataset, Dataset, int]:
-    root = _resolve_dataset_root(data_root, "oxford-pets")
+    # TorchVision manages its own "oxford-iiit-pet" subfolder, so the dataset
+    # lives at ``<data_root>/oxford-iiit-pet`` (matching ``root="data"`` used to
+    # download it).
+    root = Path(data_root)
+    # Oxford Pets uses a milder Resize(256) + RandomCrop(224) augmentation
+    # instead of the shared RandomResizedCrop; the eval transform is unchanged.
+    pets_train_transform = transforms.Compose([
+        transforms.Resize(256),
+        transforms.RandomCrop(224),
+        transforms.RandomHorizontalFlip(p=0.5),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD),
+    ])
     train_full = datasets.OxfordIIITPet(
         root=str(root),
         split="trainval",
         target_types="category",
-        transform=train_transform,
+        transform=pets_train_transform,
         download=False,
     )
     val_full = datasets.OxfordIIITPet(

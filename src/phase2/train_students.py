@@ -23,14 +23,14 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.phase1.utils import count_parameters, get_dataloaders, set_seed
-from src.phase2.distill import destill_encoder_features
+from src.phase2.distill import destill_encoder_features, destill_students
 from src.phase2.student import Student
 
 SEED = 291652
 DATA_ROOT = PROJECT_ROOT / "data"
 STUDENTS_JSON = Path(__file__).resolve().parent / "random_students.json"
-WEIGHTS_DIR = PROJECT_ROOT / "students_weights" / "encoder_train"
-
+WEIGHTS_DIR_PHASE1 = PROJECT_ROOT / "students_weights" / "encoder_train"
+WEIGHTS_DIR_PHASE2 = PROJECT_ROOT / "students_weights" / "classifier_train"
 
 TEACHERS = {
     "resnet": (lambda n: resnet50(weights=None, num_classes=n), "resnet50", "resnet50_pets.pth"),
@@ -46,6 +46,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--num-workers", type=int, default=4)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--weight-decay", type=float, default=1e-2)
+    parser.add_argument("--T", type=float, default=4.0, help="KD temperature.")
+    parser.add_argument("--alpha", type=float, default=0.8, help="KD loss weight (1-alpha goes to CE).")
+    parser.add_argument(
+        "--phase",
+        choices=("encoder", "classifier"),
+        default="classifier",
+        help="Which Phase 2 stage to run.",
+    )
     parser.add_argument(
         "--device",
         default="cuda" if torch.cuda.is_available() else "cpu",
@@ -67,13 +75,13 @@ def load_teacher(teacher_key: str, num_classes: int, device: torch.device):
     return model, kind
 
 
-def main() -> None:
+def train_students_encoder() -> None:
     args = parse_args()
     device = torch.device(args.device)
-    WEIGHTS_DIR.mkdir(parents=True, exist_ok=True)
+    WEIGHTS_DIR_PHASE1.mkdir(parents=True, exist_ok=True)
 
     students = json.loads(STUDENTS_JSON.read_text(encoding="utf-8"))
-    print(f"Device: {device} | students: {len(students)} | weights -> {WEIGHTS_DIR}")
+    print(f"Device: {device} | students: {len(students)} | weights -> {WEIGHTS_DIR_PHASE1}")
 
     # Oxford-Pets is identical for every student, so build the loaders once.
     set_seed(SEED)
@@ -111,7 +119,7 @@ def main() -> None:
             teacher_cache[teacher_key] = load_teacher(teacher_key, num_classes, device)
         teacher, kind = teacher_cache[teacher_key]
 
-        save_path = WEIGHTS_DIR / f"{config['id']}.pth"
+        save_path = WEIGHTS_DIR_PHASE1 / f"{config['id']}.pth"
         best_val_mse = destill_encoder_features(
             teacher=teacher,
             student=student,
@@ -135,11 +143,98 @@ def main() -> None:
             "weights": str(save_path),
         })
 
-    summary_path = WEIGHTS_DIR / "distillation_summary.json"
+    summary_path = WEIGHTS_DIR_PHASE1 / "distillation_summary.json"
+    summary_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    print("=" * 100)
+    print(f"Done. Summary -> {summary_path}")
+
+
+def train_students_classifier() -> None:
+    args = parse_args()
+    device = torch.device(args.device)
+    WEIGHTS_DIR_PHASE2.mkdir(parents=True, exist_ok=True)
+
+    students = json.loads(STUDENTS_JSON.read_text(encoding="utf-8"))
+    print(
+        f"Device: {device} | students: {len(students)} | "
+        f"encoders <- {WEIGHTS_DIR_PHASE1} | weights -> {WEIGHTS_DIR_PHASE2}"
+    )
+
+    set_seed(SEED)
+    train_loader, val_loader, _, num_classes = get_dataloaders(
+        dataset_name="oxford-pets",
+        data_root=DATA_ROOT,
+        batch_size=args.batch_size,
+        num_workers=args.num_workers,
+    )
+
+    teacher_cache: dict[str, tuple] = {}
+    summary: list[dict] = []
+
+    for index, config in enumerate(students, start=1):
+        teacher_key = config["teacher"]
+        teacher_dim = config["teacher_dim"]
+
+        print("=" * 100)
+        print(
+            f"[{index}/{len(students)}] {config['id']} | "
+            f"teacher={teacher_key} dim={teacher_dim} convs={config['n_convs']}"
+        )
+
+        set_seed(SEED)
+        student = Student(
+            layers=config["layers"],
+            teacher_dim=teacher_dim,
+            num_classes=config["num_classes"],
+        )
+        print(f"  trainable params: {count_parameters(student):,}")
+
+        encoder_weights = WEIGHTS_DIR_PHASE1 / f"{config['id']}.pth"
+        if not encoder_weights.exists():
+            raise FileNotFoundError(
+                f"Missing Phase 2.1 encoder weights for {config['id']}: {encoder_weights}"
+            )
+
+        if teacher_key not in teacher_cache:
+            teacher_cache[teacher_key] = load_teacher(teacher_key, num_classes, device)
+        teacher, kind = teacher_cache[teacher_key]
+
+        save_path = WEIGHTS_DIR_PHASE2 / f"{config['id']}.pth"
+        best_val_acc = destill_students(
+            teacher=teacher,
+            student=student,
+            train_loader=train_loader,
+            validation_loader=val_loader,
+            kind=kind,
+            epochs=args.epochs,
+            weights_path=str(encoder_weights),
+            save_path=str(save_path),
+            device=device,
+            lr=args.lr,
+            weight_decay=args.weight_decay,
+            T=args.T,
+            alpha=args.alpha,
+        )
+        print(f"  best val_acc = {best_val_acc:.4f} -> {save_path.name}")
+        summary.append({
+            "id": config["id"],
+            "teacher": teacher_key,
+            "teacher_dim": teacher_dim,
+            "n_convs": config["n_convs"],
+            "trainable_params": count_parameters(student),
+            "best_val_acc": best_val_acc,
+            "weights": str(save_path),
+        })
+
+    summary_path = WEIGHTS_DIR_PHASE2 / "classifier_summary.json"
     summary_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
     print("=" * 100)
     print(f"Done. Summary -> {summary_path}")
 
 
 if __name__ == "__main__":
-    main()
+    phase = parse_args().phase
+    if phase == "encoder":
+        train_students_encoder()
+    else:
+        train_students_classifier()

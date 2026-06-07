@@ -44,10 +44,22 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--epochs", type=int, default=15)
     parser.add_argument("--batch-size", type=int, default=128)
     parser.add_argument("--num-workers", type=int, default=4)
-    parser.add_argument("--lr", type=float, default=1e-3)
+    parser.add_argument("--lr", type=float, default=1e-3, help="LR for the encoder distillation stage.")
+    parser.add_argument("--encoder-lr", type=float, default=2e-4,
+                        help="Encoder LR for the classifier (KD) stage.")
+    parser.add_argument("--classifier-lr", type=float, default=1e-3,
+                        help="Classifier head LR for the classifier (KD) stage.")
     parser.add_argument("--weight-decay", type=float, default=1e-2)
     parser.add_argument("--T", type=float, default=4.0, help="KD temperature.")
     parser.add_argument("--alpha", type=float, default=0.8, help="KD loss weight (1-alpha goes to CE).")
+    parser.add_argument(
+        "--start-at",
+        type=int,
+        default=1,
+        help="1-based index of the student to (re)start the classifier stage from "
+             "(matches the [i/N] display). Earlier students are skipped and their "
+             "existing summary entries are preserved.",
+    )
     parser.add_argument(
         "--phase",
         choices=("encoder", "classifier"),
@@ -155,10 +167,20 @@ def train_students_classifier() -> None:
     WEIGHTS_DIR_PHASE2.mkdir(parents=True, exist_ok=True)
 
     students = json.loads(STUDENTS_JSON.read_text(encoding="utf-8"))
+    start_at = args.start_at
+    if not 1 <= start_at <= len(students):
+        raise ValueError(f"--start-at must be in [1, {len(students)}], got {start_at}.")
     print(
-        f"Device: {device} | students: {len(students)} | "
+        f"Device: {device} | students: {len(students)} | start-at: {start_at} | "
         f"encoders <- {WEIGHTS_DIR_PHASE1} | weights -> {WEIGHTS_DIR_PHASE2}"
     )
+
+    # Preserve summary entries for students skipped via --start-at.
+    summary_path = WEIGHTS_DIR_PHASE2 / "classifier_summary.json"
+    summary_by_id: dict[str, dict] = {}
+    if start_at > 1 and summary_path.exists():
+        for entry in json.loads(summary_path.read_text(encoding="utf-8")):
+            summary_by_id[entry["id"]] = entry
 
     set_seed(SEED)
     train_loader, val_loader, _, num_classes = get_dataloaders(
@@ -169,9 +191,11 @@ def train_students_classifier() -> None:
     )
 
     teacher_cache: dict[str, tuple] = {}
-    summary: list[dict] = []
 
     for index, config in enumerate(students, start=1):
+        if index < start_at:
+            continue
+
         teacher_key = config["teacher"]
         teacher_dim = config["teacher_dim"]
 
@@ -210,13 +234,14 @@ def train_students_classifier() -> None:
             weights_path=str(encoder_weights),
             save_path=str(save_path),
             device=device,
-            lr=args.lr,
+            encoder_lr=args.encoder_lr,
+            classifier_lr=args.classifier_lr,
             weight_decay=args.weight_decay,
             T=args.T,
             alpha=args.alpha,
         )
         print(f"  best val_acc = {best_val_acc:.4f} -> {save_path.name}")
-        summary.append({
+        summary_by_id[config["id"]] = {
             "id": config["id"],
             "teacher": teacher_key,
             "teacher_dim": teacher_dim,
@@ -224,10 +249,12 @@ def train_students_classifier() -> None:
             "trainable_params": count_parameters(student),
             "best_val_acc": best_val_acc,
             "weights": str(save_path),
-        })
+        }
 
-    summary_path = WEIGHTS_DIR_PHASE2 / "classifier_summary.json"
-    summary_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+        # Write incrementally (ordered by the JSON) so a crash mid-run keeps progress.
+        summary = [summary_by_id[c["id"]] for c in students if c["id"] in summary_by_id]
+        summary_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+
     print("=" * 100)
     print(f"Done. Summary -> {summary_path}")
 

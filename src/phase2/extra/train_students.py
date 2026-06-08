@@ -23,8 +23,8 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.phase1.utils import count_parameters, get_dataloaders, set_seed
-from src.phase2.distill import destill_encoder_features, destill_students
-from src.phase2.student import Student
+from src.phase2.extra.distill import destill_encoder_features, destill_students
+from src.phase2.extra.student import Student
 
 SEED = 291652
 DATA_ROOT = PROJECT_ROOT / "data"

@@ -1,0 +1,686 @@
+[1/18] arch1_3conv_narrow__resnet_td2048 | teacher=resnet dim=2048 convs=3
+
+  trainable params: 234,549
+
+resnet50] epoch 00 | train_loss 4.45987 | train_acc 0.0492 | val_loss 3.36683 | val_acc 0.0707 | lr 9.90e-06
+
+resnet50] epoch 01 | train_loss 4.22088 | train_acc 0.0806 | val_loss 3.23126 | val_acc 0.1114 | lr 9.61e-06
+
+resnet50] epoch 02 | train_loss 4.07722 | train_acc 0.1114 | val_loss 3.12682 | val_acc 0.1413 | lr 9.14e-06
+
+resnet50] epoch 03 | train_loss 4.03323 | train_acc 0.1256 | val_loss 3.08226 | val_acc 0.1576 | lr 8.51e-06
+
+resnet50] epoch 04 | train_loss 3.95556 | train_acc 0.1274 | val_loss 3.00572 | val_acc 0.1739 | lr 7.75e-06
+
+resnet50] epoch 05 | train_loss 3.92596 | train_acc 0.1365 | val_loss 2.98511 | val_acc 0.1467 | lr 6.89e-06
+
+resnet50] epoch 06 | train_loss 3.91241 | train_acc 0.1431 | val_loss 2.99273 | val_acc 0.1630 | lr 5.97e-06
+
+resnet50] epoch 07 | train_loss 3.87347 | train_acc 0.1519 | val_loss 2.94685 | val_acc 0.1957 | lr 5.03e-06
+
+resnet50] epoch 08 | train_loss 3.88930 | train_acc 0.1470 | val_loss 2.92459 | val_acc 0.1739 | lr 4.11e-06
+
+resnet50] epoch 09 | train_loss 3.86792 | train_acc 0.1573 | val_loss 2.90589 | val_acc 0.1766 | lr 3.25e-06
+
+resnet50] epoch 10 | train_loss 3.83854 | train_acc 0.1552 | val_loss 2.90891 | val_acc 0.1875 | lr 2.49e-06
+
+resnet50] epoch 11 | train_loss 3.85055 | train_acc 0.1688 | val_loss 2.88832 | val_acc 0.1902 | lr 1.86e-06
+
+resnet50] epoch 12 | train_loss 3.81482 | train_acc 0.1673 | val_loss 2.88828 | val_acc 0.1848 | lr 1.39e-06
+
+resnet50] epoch 13 | train_loss 3.81831 | train_acc 0.1636 | val_loss 2.88644 | val_acc 0.1875 | lr 1.10e-06
+
+resnet50] epoch 14 | train_loss 3.81585 | train_acc 0.1727 | val_loss 2.88611 | val_acc 0.1929 | lr 1.00e-06
+
+  best val_acc = 0.1957 -> arch1_3conv_narrow__resnet_td2048.pth
+
+====================================================================================================
+
+[2/18] arch1_3conv_narrow__convnext_td1024 | teacher=convnext dim=1024 convs=3
+
+  trainable params: 130,101
+
+convnext_base] epoch 00 | train_loss 8.37131 | train_acc 0.0260 | val_loss 3.61198 | val_acc 0.0299 | lr 9.90e-06
+
+convnext_base] epoch 01 | train_loss 8.29949 | train_acc 0.0417 | val_loss 3.57490 | val_acc 0.0462 | lr 9.61e-06
+
+convnext_base] epoch 02 | train_loss 8.22846 | train_acc 0.0522 | val_loss 3.51866 | val_acc 0.0462 | lr 9.14e-06
+
+convnext_base] epoch 03 | train_loss 8.17864 | train_acc 0.0622 | val_loss 3.46548 | val_acc 0.0543 | lr 8.51e-06
+
+convnext_base] epoch 04 | train_loss 8.10268 | train_acc 0.0673 | val_loss 3.42962 | val_acc 0.0598 | lr 7.75e-06
+
+convnext_base] epoch 05 | train_loss 7.99853 | train_acc 0.0691 | val_loss 3.41642 | val_acc 0.0625 | lr 6.89e-06
+
+convnext_base] epoch 06 | train_loss 8.01021 | train_acc 0.0728 | val_loss 3.39896 | val_acc 0.0679 | lr 5.97e-06
+
+convnext_base] epoch 07 | train_loss 7.98975 | train_acc 0.0740 | val_loss 3.38430 | val_acc 0.0707 | lr 5.03e-06
+
+convnext_base] epoch 08 | train_loss 7.96394 | train_acc 0.0710 | val_loss 3.38446 | val_acc 0.0734 | lr 4.11e-06
+
+convnext_base] epoch 09 | train_loss 7.95140 | train_acc 0.0788 | val_loss 3.37218 | val_acc 0.0679 | lr 3.25e-06
+
+convnext_base] epoch 10 | train_loss 7.92428 | train_acc 0.0797 | val_loss 3.36430 | val_acc 0.0652 | lr 2.49e-06
+
+convnext_base] epoch 11 | train_loss 7.91004 | train_acc 0.0770 | val_loss 3.36470 | val_acc 0.0652 | lr 1.86e-06
+
+convnext_base] epoch 12 | train_loss 7.94852 | train_acc 0.0824 | val_loss 3.36202 | val_acc 0.0679 | lr 1.39e-06
+
+convnext_base] epoch 13 | train_loss 7.89559 | train_acc 0.0836 | val_loss 3.36181 | val_acc 0.0679 | lr 1.10e-06
+
+convnext_base] epoch 14 | train_loss 7.90035 | train_acc 0.0779 | val_loss 3.35885 | val_acc 0.0734 | lr 1.00e-06
+
+  best val_acc = 0.0734 -> arch1_3conv_narrow__convnext_td1024.pth
+
+====================================================================================================
+
+[3/18] arch1_3conv_narrow__vgg_td512 | teacher=vgg dim=512 convs=3
+
+  trainable params: 77,877
+
+vgg16] epoch 00 | train_loss 35.96652 | train_acc 0.0275 | val_loss 3.56278 | val_acc 0.0489 | lr 9.90e-06
+
+vgg16] epoch 01 | train_loss 35.69788 | train_acc 0.0516 | val_loss 3.47409 | val_acc 0.0707 | lr 9.61e-06
+
+vgg16] epoch 02 | train_loss 35.29724 | train_acc 0.0806 | val_loss 3.37098 | val_acc 0.1277 | lr 9.14e-06
+
+vgg16] epoch 03 | train_loss 34.92747 | train_acc 0.1033 | val_loss 3.31521 | val_acc 0.1277 | lr 8.51e-06
+
+vgg16] epoch 04 | train_loss 34.42891 | train_acc 0.1120 | val_loss 3.23066 | val_acc 0.1332 | lr 7.75e-06
+
+vgg16] epoch 05 | train_loss 34.24189 | train_acc 0.1144 | val_loss 3.19600 | val_acc 0.1386 | lr 6.89e-06
+
+vgg16] epoch 06 | train_loss 33.88200 | train_acc 0.1150 | val_loss 3.17579 | val_acc 0.1304 | lr 5.97e-06
+
+vgg16] epoch 07 | train_loss 33.99549 | train_acc 0.1193 | val_loss 3.15535 | val_acc 0.1304 | lr 5.03e-06
+
+vgg16] epoch 08 | train_loss 33.60897 | train_acc 0.1238 | val_loss 3.15336 | val_acc 0.1386 | lr 4.11e-06
+
+vgg16] epoch 09 | train_loss 33.36863 | train_acc 0.1241 | val_loss 3.15575 | val_acc 0.1467 | lr 3.25e-06
+
+vgg16] epoch 10 | train_loss 33.23085 | train_acc 0.1244 | val_loss 3.15114 | val_acc 0.1413 | lr 2.49e-06
+
+vgg16] epoch 11 | train_loss 33.09463 | train_acc 0.1286 | val_loss 3.14881 | val_acc 0.1440 | lr 1.86e-06
+
+vgg16] epoch 12 | train_loss 33.18356 | train_acc 0.1289 | val_loss 3.15035 | val_acc 0.1413 | lr 1.39e-06
+
+vgg16] epoch 13 | train_loss 33.19508 | train_acc 0.1292 | val_loss 3.15519 | val_acc 0.1413 | lr 1.10e-06
+
+vgg16] epoch 14 | train_loss 33.08274 | train_acc 0.1214 | val_loss 3.15368 | val_acc 0.1386 | lr 1.00e-06
+
+  best val_acc = 0.1467 -> arch1_3conv_narrow__vgg_td512.pth
+
+====================================================================================================
+
+[4/18] arch2_3conv__resnet_td2048 | teacher=resnet dim=2048 convs=3
+
+  trainable params: 437,317
+
+resnet50] epoch 00 | train_loss 4.22240 | train_acc 0.0915 | val_loss 3.04327 | val_acc 0.1549 | lr 9.90e-06
+
+resnet50] epoch 01 | train_loss 3.81966 | train_acc 0.1540 | val_loss 2.81809 | val_acc 0.2228 | lr 9.61e-06
+
+resnet50] epoch 02 | train_loss 3.73394 | train_acc 0.1730 | val_loss 2.79018 | val_acc 0.2011 | lr 9.14e-06
+
+resnet50] epoch 03 | train_loss 3.64437 | train_acc 0.1890 | val_loss 2.76445 | val_acc 0.2255 | lr 8.51e-06
+
+resnet50] epoch 04 | train_loss 3.60924 | train_acc 0.1932 | val_loss 2.71925 | val_acc 0.2120 | lr 7.75e-06
+
+resnet50] epoch 05 | train_loss 3.57809 | train_acc 0.1996 | val_loss 2.70695 | val_acc 0.2228 | lr 6.89e-06
+
+resnet50] epoch 06 | train_loss 3.55374 | train_acc 0.2129 | val_loss 2.70936 | val_acc 0.2147 | lr 5.97e-06
+
+resnet50] epoch 07 | train_loss 3.55845 | train_acc 0.2156 | val_loss 2.68556 | val_acc 0.2120 | lr 5.03e-06
+
+resnet50] epoch 08 | train_loss 3.53841 | train_acc 0.2222 | val_loss 2.67040 | val_acc 0.2609 | lr 4.11e-06
+
+resnet50] epoch 09 | train_loss 3.50895 | train_acc 0.2246 | val_loss 2.63023 | val_acc 0.2527 | lr 3.25e-06
+
+resnet50] epoch 10 | train_loss 3.49734 | train_acc 0.2225 | val_loss 2.63079 | val_acc 0.2527 | lr 2.49e-06
+
+resnet50] epoch 11 | train_loss 3.48789 | train_acc 0.2322 | val_loss 2.62030 | val_acc 0.2473 | lr 1.86e-06
+
+resnet50] epoch 12 | train_loss 3.49079 | train_acc 0.2373 | val_loss 2.62794 | val_acc 0.2418 | lr 1.39e-06
+
+resnet50] epoch 13 | train_loss 3.48196 | train_acc 0.2385 | val_loss 2.61875 | val_acc 0.2364 | lr 1.10e-06
+
+resnet50] epoch 14 | train_loss 3.48141 | train_acc 0.2431 | val_loss 2.61859 | val_acc 0.2446 | lr 1.00e-06
+
+  best val_acc = 0.2609 -> arch2_3conv__resnet_td2048.pth
+
+====================================================================================================
+
+[5/18] arch2_3conv__convnext_td1024 | teacher=convnext dim=1024 convs=3
+
+  trainable params: 267,333
+
+convnext_base] epoch 00 | train_loss 8.31887 | train_acc 0.0365 | val_loss 3.56576 | val_acc 0.0435 | lr 9.90e-06
+
+convnext_base] epoch 01 | train_loss 8.14843 | train_acc 0.0574 | val_loss 3.46190 | val_acc 0.0734 | lr 9.61e-06
+
+convnext_base] epoch 02 | train_loss 8.02912 | train_acc 0.0770 | val_loss 3.37927 | val_acc 0.0788 | lr 9.14e-06
+
+convnext_base] epoch 03 | train_loss 7.88756 | train_acc 0.0830 | val_loss 3.32230 | val_acc 0.0842 | lr 8.51e-06
+
+convnext_base] epoch 04 | train_loss 7.78793 | train_acc 0.0861 | val_loss 3.27951 | val_acc 0.0842 | lr 7.75e-06
+
+convnext_base] epoch 05 | train_loss 7.76829 | train_acc 0.0981 | val_loss 3.24868 | val_acc 0.0978 | lr 6.89e-06
+
+convnext_base] epoch 06 | train_loss 7.71979 | train_acc 0.1033 | val_loss 3.23343 | val_acc 0.0978 | lr 5.97e-06
+
+convnext_base] epoch 07 | train_loss 7.66572 | train_acc 0.1048 | val_loss 3.21678 | val_acc 0.0978 | lr 5.03e-06
+
+convnext_base] epoch 08 | train_loss 7.63033 | train_acc 0.1063 | val_loss 3.20197 | val_acc 0.1060 | lr 4.11e-06
+
+convnext_base] epoch 09 | train_loss 7.63442 | train_acc 0.1123 | val_loss 3.19227 | val_acc 0.1087 | lr 3.25e-06
+
+convnext_base] epoch 10 | train_loss 7.63396 | train_acc 0.1120 | val_loss 3.17762 | val_acc 0.1087 | lr 2.49e-06
+
+convnext_base] epoch 11 | train_loss 7.60144 | train_acc 0.1178 | val_loss 3.17807 | val_acc 0.1168 | lr 1.86e-06
+
+convnext_base] epoch 12 | train_loss 7.59619 | train_acc 0.1144 | val_loss 3.17195 | val_acc 0.1196 | lr 1.39e-06
+
+convnext_base] epoch 13 | train_loss 7.58137 | train_acc 0.1250 | val_loss 3.16459 | val_acc 0.1196 | lr 1.10e-06
+
+convnext_base] epoch 14 | train_loss 7.60412 | train_acc 0.1162 | val_loss 3.16785 | val_acc 0.1196 | lr 1.00e-06
+
+  best val_acc = 0.1196 -> arch2_3conv__convnext_td1024.pth
+
+====================================================================================================
+
+[6/18] arch2_3conv__vgg_td512 | teacher=vgg dim=512 convs=3
+
+  trainable params: 182,341
+
+vgg16] epoch 00 | train_loss 35.91225 | train_acc 0.0365 | val_loss 3.52570 | val_acc 0.0598 | lr 9.90e-06
+
+vgg16] epoch 01 | train_loss 35.07165 | train_acc 0.0812 | val_loss 3.36148 | val_acc 0.1060 | lr 9.61e-06
+
+vgg16] epoch 02 | train_loss 34.48312 | train_acc 0.1298 | val_loss 3.15774 | val_acc 0.1549 | lr 9.14e-06
+
+vgg16] epoch 03 | train_loss 33.75222 | train_acc 0.1585 | val_loss 3.03032 | val_acc 0.1522 | lr 8.51e-06
+
+vgg16] epoch 04 | train_loss 32.89817 | train_acc 0.1600 | val_loss 2.93124 | val_acc 0.1603 | lr 7.75e-06
+
+vgg16] epoch 05 | train_loss 32.74104 | train_acc 0.1676 | val_loss 2.86117 | val_acc 0.1712 | lr 6.89e-06
+
+vgg16] epoch 06 | train_loss 32.50545 | train_acc 0.1827 | val_loss 2.83280 | val_acc 0.2011 | lr 5.97e-06
+
+vgg16] epoch 07 | train_loss 31.96986 | train_acc 0.1881 | val_loss 2.82111 | val_acc 0.1957 | lr 5.03e-06
+
+vgg16] epoch 08 | train_loss 31.71326 | train_acc 0.1914 | val_loss 2.80569 | val_acc 0.1957 | lr 4.11e-06
+
+vgg16] epoch 09 | train_loss 31.63414 | train_acc 0.1869 | val_loss 2.79218 | val_acc 0.2011 | lr 3.25e-06
+
+vgg16] epoch 10 | train_loss 31.19766 | train_acc 0.1860 | val_loss 2.78964 | val_acc 0.2092 | lr 2.49e-06
+
+vgg16] epoch 11 | train_loss 30.96291 | train_acc 0.1954 | val_loss 2.79614 | val_acc 0.2038 | lr 1.86e-06
+
+vgg16] epoch 12 | train_loss 31.05036 | train_acc 0.1899 | val_loss 2.79396 | val_acc 0.2147 | lr 1.39e-06
+
+vgg16] epoch 13 | train_loss 30.99047 | train_acc 0.1893 | val_loss 2.79474 | val_acc 0.2147 | lr 1.10e-06
+
+vgg16] epoch 14 | train_loss 31.06406 | train_acc 0.1908 | val_loss 2.79559 | val_acc 0.2120 | lr 1.00e-06
+
+  best val_acc = 0.2147 -> arch2_3conv__vgg_td512.pth
+
+====================================================================================================
+
+[7/18] arch3_4conv_narrow__resnet_td2048 | teacher=resnet dim=2048 convs=4
+
+  trainable params: 994,885
+
+resnet50] epoch 00 | train_loss 3.89787 | train_acc 0.1422 | val_loss 2.60479 | val_acc 0.2582 | lr 9.90e-06
+
+resnet50] epoch 01 | train_loss 3.27981 | train_acc 0.2388 | val_loss 2.42313 | val_acc 0.3125 | lr 9.61e-06
+
+resnet50] epoch 02 | train_loss 3.13751 | train_acc 0.2681 | val_loss 2.38245 | val_acc 0.3043 | lr 9.14e-06
+
+resnet50] epoch 03 | train_loss 3.09123 | train_acc 0.2850 | val_loss 2.34055 | val_acc 0.3125 | lr 8.51e-06
+
+resnet50] epoch 04 | train_loss 3.05951 | train_acc 0.3013 | val_loss 2.34197 | val_acc 0.3098 | lr 7.75e-06
+
+resnet50] epoch 05 | train_loss 3.02997 | train_acc 0.3098 | val_loss 2.29213 | val_acc 0.3587 | lr 6.89e-06
+
+resnet50] epoch 06 | train_loss 3.01639 | train_acc 0.3116 | val_loss 2.26716 | val_acc 0.3370 | lr 5.97e-06
+
+resnet50] epoch 07 | train_loss 2.97663 | train_acc 0.3339 | val_loss 2.23829 | val_acc 0.3614 | lr 5.03e-06
+
+resnet50] epoch 08 | train_loss 2.96281 | train_acc 0.3234 | val_loss 2.24280 | val_acc 0.3397 | lr 4.11e-06
+
+resnet50] epoch 09 | train_loss 2.94897 | train_acc 0.3367 | val_loss 2.25824 | val_acc 0.3098 | lr 3.25e-06
+
+resnet50] epoch 10 | train_loss 2.95140 | train_acc 0.3345 | val_loss 2.23493 | val_acc 0.3451 | lr 2.49e-06
+
+resnet50] epoch 11 | train_loss 2.92939 | train_acc 0.3412 | val_loss 2.22916 | val_acc 0.3288 | lr 1.86e-06
+
+resnet50] epoch 12 | train_loss 2.94059 | train_acc 0.3433 | val_loss 2.22945 | val_acc 0.3261 | lr 1.39e-06
+
+resnet50] epoch 13 | train_loss 2.94232 | train_acc 0.3490 | val_loss 2.22555 | val_acc 0.3288 | lr 1.10e-06
+
+resnet50] epoch 14 | train_loss 2.92182 | train_acc 0.3493 | val_loss 2.22344 | val_acc 0.3370 | lr 1.00e-06
+
+  best val_acc = 0.3614 -> arch3_4conv_narrow__resnet_td2048.pth
+
+====================================================================================================
+
+[8/18] arch3_4conv_narrow__convnext_td1024 | teacher=convnext dim=1024 convs=4
+
+  trainable params: 693,829
+
+convnext_base] epoch 00 | train_loss 8.18616 | train_acc 0.0616 | val_loss 3.40684 | val_acc 0.0679 | lr 9.90e-06
+
+convnext_base] epoch 01 | train_loss 7.76867 | train_acc 0.1072 | val_loss 3.17314 | val_acc 0.1196 | lr 9.61e-06
+
+convnext_base] epoch 02 | train_loss 7.53838 | train_acc 0.1413 | val_loss 3.02276 | val_acc 0.1359 | lr 9.14e-06
+
+convnext_base] epoch 03 | train_loss 7.33211 | train_acc 0.1467 | val_loss 2.95528 | val_acc 0.1549 | lr 8.51e-06
+
+convnext_base] epoch 04 | train_loss 7.18741 | train_acc 0.1652 | val_loss 2.90180 | val_acc 0.1467 | lr 7.75e-06
+
+convnext_base] epoch 05 | train_loss 7.11601 | train_acc 0.1673 | val_loss 2.88575 | val_acc 0.1658 | lr 6.89e-06
+
+convnext_base] epoch 06 | train_loss 7.10774 | train_acc 0.1775 | val_loss 2.83541 | val_acc 0.1875 | lr 5.97e-06
+
+convnext_base] epoch 07 | train_loss 6.98881 | train_acc 0.1878 | val_loss 2.82197 | val_acc 0.1848 | lr 5.03e-06
+
+convnext_base] epoch 08 | train_loss 6.98679 | train_acc 0.1896 | val_loss 2.80991 | val_acc 0.1902 | lr 4.11e-06
+
+convnext_base] epoch 09 | train_loss 6.96936 | train_acc 0.1836 | val_loss 2.79783 | val_acc 0.1929 | lr 3.25e-06
+
+convnext_base] epoch 10 | train_loss 6.93163 | train_acc 0.1963 | val_loss 2.79540 | val_acc 0.1984 | lr 2.49e-06
+
+convnext_base] epoch 11 | train_loss 6.96247 | train_acc 0.1947 | val_loss 2.79483 | val_acc 0.1957 | lr 1.86e-06
+
+convnext_base] epoch 12 | train_loss 6.94194 | train_acc 0.1954 | val_loss 2.79499 | val_acc 0.1984 | lr 1.39e-06
+
+convnext_base] epoch 13 | train_loss 6.95267 | train_acc 0.1917 | val_loss 2.78520 | val_acc 0.1984 | lr 1.10e-06
+
+convnext_base] epoch 14 | train_loss 6.93861 | train_acc 0.1960 | val_loss 2.78878 | val_acc 0.1984 | lr 1.00e-06
+
+  best val_acc = 0.1984 -> arch3_4conv_narrow__convnext_td1024.pth
+
+====================================================================================================
+
+[9/18] arch3_4conv_narrow__vgg_td512 | teacher=vgg dim=512 convs=4
+
+  trainable params: 543,301
+
+vgg16] epoch 00 | train_loss 35.43014 | train_acc 0.0667 | val_loss 3.26021 | val_acc 0.1141 | lr 9.90e-06
+
+vgg16] epoch 01 | train_loss 33.84197 | train_acc 0.1335 | val_loss 2.89795 | val_acc 0.1495 | lr 9.61e-06
+
+vgg16] epoch 02 | train_loss 32.39206 | train_acc 0.2065 | val_loss 2.72954 | val_acc 0.2065 | lr 9.14e-06
+
+vgg16] epoch 03 | train_loss 31.06325 | train_acc 0.2225 | val_loss 2.58682 | val_acc 0.2582 | lr 8.51e-06
+
+vgg16] epoch 04 | train_loss 29.88780 | train_acc 0.2497 | val_loss 2.57775 | val_acc 0.2636 | lr 7.75e-06
+
+vgg16] epoch 05 | train_loss 28.93643 | train_acc 0.2440 | val_loss 2.57619 | val_acc 0.2962 | lr 6.89e-06
+
+vgg16] epoch 06 | train_loss 28.39447 | train_acc 0.2539 | val_loss 2.57159 | val_acc 0.2962 | lr 5.97e-06
+
+vgg16] epoch 07 | train_loss 27.80697 | train_acc 0.2636 | val_loss 2.59232 | val_acc 0.3016 | lr 5.03e-06
+
+vgg16] epoch 08 | train_loss 27.48965 | train_acc 0.2732 | val_loss 2.60714 | val_acc 0.2935 | lr 4.11e-06
+
+vgg16] epoch 09 | train_loss 26.83012 | train_acc 0.2678 | val_loss 2.60837 | val_acc 0.2935 | lr 3.25e-06
+
+vgg16] epoch 10 | train_loss 26.83493 | train_acc 0.2793 | val_loss 2.61729 | val_acc 0.2799 | lr 2.49e-06
+
+vgg16] epoch 11 | train_loss 26.89170 | train_acc 0.2790 | val_loss 2.63090 | val_acc 0.2853 | lr 1.86e-06
+
+vgg16] epoch 12 | train_loss 26.79630 | train_acc 0.2814 | val_loss 2.61605 | val_acc 0.2935 | lr 1.39e-06
+
+vgg16] epoch 13 | train_loss 26.92369 | train_acc 0.2820 | val_loss 2.63255 | val_acc 0.2908 | lr 1.10e-06
+
+vgg16] epoch 14 | train_loss 26.73920 | train_acc 0.2859 | val_loss 2.62491 | val_acc 0.2962 | lr 1.00e-06
+
+  best val_acc = 0.3016 -> arch3_4conv_narrow__vgg_td512.pth
+
+====================================================================================================
+
+[10/18] arch4_4conv__resnet_td2048 | teacher=resnet dim=2048 convs=4
+
+  trainable params: 2,128,741
+
+resnet50] epoch 00 | train_loss 3.69091 | train_acc 0.1694 | val_loss 2.48110 | val_acc 0.2636 | lr 9.90e-06
+
+resnet50] epoch 01 | train_loss 3.09898 | train_acc 0.2736 | val_loss 2.29102 | val_acc 0.3043 | lr 9.61e-06
+
+resnet50] epoch 02 | train_loss 2.99476 | train_acc 0.3080 | val_loss 2.23167 | val_acc 0.3315 | lr 9.14e-06
+
+resnet50] epoch 03 | train_loss 2.94527 | train_acc 0.3312 | val_loss 2.20988 | val_acc 0.3370 | lr 8.51e-06
+
+resnet50] epoch 04 | train_loss 2.92737 | train_acc 0.3382 | val_loss 2.13338 | val_acc 0.3859 | lr 7.75e-06
+
+resnet50] epoch 05 | train_loss 2.86013 | train_acc 0.3575 | val_loss 2.15090 | val_acc 0.3370 | lr 6.89e-06
+
+resnet50] epoch 06 | train_loss 2.84489 | train_acc 0.3542 | val_loss 2.14913 | val_acc 0.3370 | lr 5.97e-06
+
+resnet50] epoch 07 | train_loss 2.80367 | train_acc 0.3608 | val_loss 2.11288 | val_acc 0.3641 | lr 5.03e-06
+
+resnet50] epoch 08 | train_loss 2.76292 | train_acc 0.3783 | val_loss 2.07423 | val_acc 0.3940 | lr 4.11e-06
+
+resnet50] epoch 09 | train_loss 2.79460 | train_acc 0.3777 | val_loss 2.07454 | val_acc 0.3832 | lr 3.25e-06
+
+resnet50] epoch 10 | train_loss 2.73465 | train_acc 0.3835 | val_loss 2.07860 | val_acc 0.3750 | lr 2.49e-06
+
+resnet50] epoch 11 | train_loss 2.77521 | train_acc 0.3744 | val_loss 2.06912 | val_acc 0.3859 | lr 1.86e-06
+
+resnet50] epoch 12 | train_loss 2.75911 | train_acc 0.3913 | val_loss 2.05523 | val_acc 0.3995 | lr 1.39e-06
+
+resnet50] epoch 13 | train_loss 2.76353 | train_acc 0.3744 | val_loss 2.05712 | val_acc 0.3859 | lr 1.10e-06
+
+resnet50] epoch 14 | train_loss 2.76896 | train_acc 0.3829 | val_loss 2.05745 | val_acc 0.3940 | lr 1.00e-06
+
+  best val_acc = 0.3995 -> arch4_4conv__resnet_td2048.pth
+
+====================================================================================================
+
+[11/18] arch4_4conv__convnext_td1024 | teacher=convnext dim=1024 convs=4
+
+  trainable params: 1,696,613
+
+convnext_base] epoch 00 | train_loss 8.19727 | train_acc 0.0562 | val_loss 3.41801 | val_acc 0.0489 | lr 9.90e-06
+
+convnext_base] epoch 01 | train_loss 7.81284 | train_acc 0.1168 | val_loss 3.22404 | val_acc 0.1087 | lr 9.61e-06
+
+convnext_base] epoch 02 | train_loss 7.40278 | train_acc 0.1332 | val_loss 3.03283 | val_acc 0.1250 | lr 9.14e-06
+
+convnext_base] epoch 03 | train_loss 7.09170 | train_acc 0.1582 | val_loss 2.92420 | val_acc 0.1793 | lr 8.51e-06
+
+convnext_base] epoch 04 | train_loss 6.91398 | train_acc 0.1809 | val_loss 2.83175 | val_acc 0.2065 | lr 7.75e-06
+
+convnext_base] epoch 05 | train_loss 6.86563 | train_acc 0.1963 | val_loss 2.80962 | val_acc 0.1929 | lr 6.89e-06
+
+convnext_base] epoch 06 | train_loss 6.81233 | train_acc 0.2053 | val_loss 2.78667 | val_acc 0.2065 | lr 5.97e-06
+
+convnext_base] epoch 07 | train_loss 6.74272 | train_acc 0.2147 | val_loss 2.73625 | val_acc 0.2201 | lr 5.03e-06
+
+convnext_base] epoch 08 | train_loss 6.68994 | train_acc 0.2156 | val_loss 2.72977 | val_acc 0.2228 | lr 4.11e-06
+
+convnext_base] epoch 09 | train_loss 6.64594 | train_acc 0.2141 | val_loss 2.71991 | val_acc 0.2310 | lr 3.25e-06
+
+convnext_base] epoch 10 | train_loss 6.65300 | train_acc 0.2240 | val_loss 2.70719 | val_acc 0.2337 | lr 2.49e-06
+
+convnext_base] epoch 11 | train_loss 6.64331 | train_acc 0.2313 | val_loss 2.71279 | val_acc 0.2364 | lr 1.86e-06
+
+convnext_base] epoch 12 | train_loss 6.64155 | train_acc 0.2237 | val_loss 2.69929 | val_acc 0.2283 | lr 1.39e-06
+
+convnext_base] epoch 13 | train_loss 6.64193 | train_acc 0.2316 | val_loss 2.69857 | val_acc 0.2418 | lr 1.10e-06
+
+convnext_base] epoch 14 | train_loss 6.63704 | train_acc 0.2277 | val_loss 2.70013 | val_acc 0.2418 | lr 1.00e-06
+
+  best val_acc = 0.2418 -> arch4_4conv__convnext_td1024.pth
+
+====================================================================================================
+
+[12/18] arch4_4conv__vgg_td512 | teacher=vgg dim=512 convs=4
+
+  trainable params: 1,480,549
+
+vgg16] epoch 00 | train_loss 35.09763 | train_acc 0.0915 | val_loss 3.09168 | val_acc 0.1549 | lr 9.90e-06
+
+vgg16] epoch 01 | train_loss 32.73368 | train_acc 0.1996 | val_loss 2.65780 | val_acc 0.1984 | lr 9.61e-06
+
+vgg16] epoch 02 | train_loss 30.80561 | train_acc 0.2524 | val_loss 2.44561 | val_acc 0.2880 | lr 9.14e-06
+
+vgg16] epoch 03 | train_loss 29.15281 | train_acc 0.2624 | val_loss 2.42264 | val_acc 0.2908 | lr 8.51e-06
+
+vgg16] epoch 04 | train_loss 27.99500 | train_acc 0.2844 | val_loss 2.38766 | val_acc 0.3071 | lr 7.75e-06
+
+vgg16] epoch 05 | train_loss 26.89396 | train_acc 0.2959 | val_loss 2.40245 | val_acc 0.3261 | lr 6.89e-06
+
+vgg16] epoch 06 | train_loss 26.18324 | train_acc 0.3059 | val_loss 2.41090 | val_acc 0.3288 | lr 5.97e-06
+
+vgg16] epoch 07 | train_loss 25.65344 | train_acc 0.3164 | val_loss 2.41675 | val_acc 0.3342 | lr 5.03e-06
+
+vgg16] epoch 08 | train_loss 25.20098 | train_acc 0.3213 | val_loss 2.43898 | val_acc 0.3451 | lr 4.11e-06
+
+vgg16] epoch 09 | train_loss 24.80352 | train_acc 0.3306 | val_loss 2.45573 | val_acc 0.3342 | lr 3.25e-06
+
+vgg16] epoch 10 | train_loss 24.59546 | train_acc 0.3318 | val_loss 2.44809 | val_acc 0.3505 | lr 2.49e-06
+
+vgg16] epoch 11 | train_loss 24.69256 | train_acc 0.3348 | val_loss 2.43868 | val_acc 0.3505 | lr 1.86e-06
+
+vgg16] epoch 12 | train_loss 24.51964 | train_acc 0.3324 | val_loss 2.47550 | val_acc 0.3478 | lr 1.39e-06
+
+vgg16] epoch 13 | train_loss 24.28244 | train_acc 0.3400 | val_loss 2.47071 | val_acc 0.3533 | lr 1.10e-06
+
+vgg16] epoch 14 | train_loss 24.32088 | train_acc 0.3436 | val_loss 2.46611 | val_acc 0.3505 | lr 1.00e-06
+
+  best val_acc = 0.3533 -> arch4_4conv__vgg_td512.pth
+
+====================================================================================================
+
+[13/18] arch5_5conv__resnet_td2048 | teacher=resnet dim=2048 convs=5
+
+  trainable params: 3,276,389
+
+resnet50] epoch 00 | train_loss 3.47786 | train_acc 0.2150 | val_loss 2.27338 | val_acc 0.2962 | lr 9.90e-06
+
+resnet50] epoch 01 | train_loss 2.86710 | train_acc 0.3333 | val_loss 2.13193 | val_acc 0.3587 | lr 9.61e-06
+
+resnet50] epoch 02 | train_loss 2.75532 | train_acc 0.3708 | val_loss 2.01804 | val_acc 0.3505 | lr 9.14e-06
+
+resnet50] epoch 03 | train_loss 2.67871 | train_acc 0.3732 | val_loss 2.05602 | val_acc 0.3832 | lr 8.51e-06
+
+resnet50] epoch 04 | train_loss 2.62071 | train_acc 0.3901 | val_loss 1.95985 | val_acc 0.4293 | lr 7.75e-06
+
+resnet50] epoch 05 | train_loss 2.60229 | train_acc 0.3986 | val_loss 1.97978 | val_acc 0.4022 | lr 6.89e-06
+
+resnet50] epoch 06 | train_loss 2.53982 | train_acc 0.4103 | val_loss 1.95817 | val_acc 0.4022 | lr 5.97e-06
+
+resnet50] epoch 07 | train_loss 2.52365 | train_acc 0.4218 | val_loss 1.92257 | val_acc 0.4484 | lr 5.03e-06
+
+resnet50] epoch 08 | train_loss 2.51055 | train_acc 0.4287 | val_loss 1.92571 | val_acc 0.4266 | lr 4.11e-06
+
+resnet50] epoch 09 | train_loss 2.47233 | train_acc 0.4284 | val_loss 1.91585 | val_acc 0.4402 | lr 3.25e-06
+
+resnet50] epoch 10 | train_loss 2.47918 | train_acc 0.4429 | val_loss 1.91984 | val_acc 0.4321 | lr 2.49e-06
+
+resnet50] epoch 11 | train_loss 2.48074 | train_acc 0.4360 | val_loss 1.89702 | val_acc 0.4375 | lr 1.86e-06
+
+resnet50] epoch 12 | train_loss 2.48037 | train_acc 0.4423 | val_loss 1.89602 | val_acc 0.4375 | lr 1.39e-06
+
+resnet50] epoch 13 | train_loss 2.47632 | train_acc 0.4336 | val_loss 1.89773 | val_acc 0.4375 | lr 1.10e-06
+
+resnet50] epoch 14 | train_loss 2.47067 | train_acc 0.4460 | val_loss 1.89611 | val_acc 0.4293 | lr 1.00e-06
+
+  best val_acc = 0.4484 -> arch5_5conv__resnet_td2048.pth
+
+====================================================================================================
+
+[14/18] arch5_5conv__convnext_td1024 | teacher=convnext dim=1024 convs=5
+
+  trainable params: 2,713,189
+
+convnext_base] epoch 00 | train_loss 8.27388 | train_acc 0.0546 | val_loss 3.48379 | val_acc 0.0870 | lr 9.90e-06
+
+convnext_base] epoch 01 | train_loss 7.96305 | train_acc 0.1181 | val_loss 3.29962 | val_acc 0.1087 | lr 9.61e-06
+
+convnext_base] epoch 02 | train_loss 7.52357 | train_acc 0.1193 | val_loss 3.14693 | val_acc 0.1196 | lr 9.14e-06
+
+convnext_base] epoch 03 | train_loss 7.26830 | train_acc 0.1398 | val_loss 3.04378 | val_acc 0.1630 | lr 8.51e-06
+
+convnext_base] epoch 04 | train_loss 7.12673 | train_acc 0.1730 | val_loss 2.98039 | val_acc 0.1658 | lr 7.75e-06
+
+convnext_base] epoch 05 | train_loss 7.04050 | train_acc 0.1751 | val_loss 2.93865 | val_acc 0.1821 | lr 6.89e-06
+
+convnext_base] epoch 06 | train_loss 6.94700 | train_acc 0.1812 | val_loss 2.92798 | val_acc 0.1984 | lr 5.97e-06
+
+convnext_base] epoch 07 | train_loss 6.93672 | train_acc 0.1941 | val_loss 2.90149 | val_acc 0.1766 | lr 5.03e-06
+
+convnext_base] epoch 08 | train_loss 6.91514 | train_acc 0.1957 | val_loss 2.88564 | val_acc 0.1848 | lr 4.11e-06
+
+convnext_base] epoch 09 | train_loss 6.86943 | train_acc 0.2080 | val_loss 2.87133 | val_acc 0.1984 | lr 3.25e-06
+
+convnext_base] epoch 10 | train_loss 6.81403 | train_acc 0.2041 | val_loss 2.85780 | val_acc 0.2147 | lr 2.49e-06
+
+convnext_base] epoch 11 | train_loss 6.82100 | train_acc 0.2092 | val_loss 2.86486 | val_acc 0.2092 | lr 1.86e-06
+
+convnext_base] epoch 12 | train_loss 6.81581 | train_acc 0.2147 | val_loss 2.85978 | val_acc 0.2065 | lr 1.39e-06
+
+convnext_base] epoch 13 | train_loss 6.80141 | train_acc 0.2162 | val_loss 2.84375 | val_acc 0.2147 | lr 1.10e-06
+
+convnext_base] epoch 14 | train_loss 6.80276 | train_acc 0.2101 | val_loss 2.84482 | val_acc 0.2038 | lr 1.00e-06
+
+  best val_acc = 0.2147 -> arch5_5conv__convnext_td1024.pth
+
+====================================================================================================
+
+[15/18] arch5_5conv__vgg_td512 | teacher=vgg dim=512 convs=5
+
+  trainable params: 2,431,589
+
+vgg16] epoch 00 | train_loss 34.68942 | train_acc 0.1084 | val_loss 2.93145 | val_acc 0.1848 | lr 9.90e-06
+
+vgg16] epoch 01 | train_loss 31.43317 | train_acc 0.2452 | val_loss 2.47175 | val_acc 0.2663 | lr 9.61e-06
+
+vgg16] epoch 02 | train_loss 28.84110 | train_acc 0.3037 | val_loss 2.25973 | val_acc 0.3207 | lr 9.14e-06
+
+vgg16] epoch 03 | train_loss 26.84253 | train_acc 0.3188 | val_loss 2.28124 | val_acc 0.3315 | lr 8.51e-06
+
+vgg16] epoch 04 | train_loss 25.43197 | train_acc 0.3545 | val_loss 2.26536 | val_acc 0.3696 | lr 7.75e-06
+
+vgg16] epoch 05 | train_loss 24.27913 | train_acc 0.3545 | val_loss 2.28196 | val_acc 0.3696 | lr 6.89e-06
+
+vgg16] epoch 06 | train_loss 23.17651 | train_acc 0.3650 | val_loss 2.32543 | val_acc 0.3886 | lr 5.97e-06
+
+vgg16] epoch 07 | train_loss 22.56762 | train_acc 0.3841 | val_loss 2.34121 | val_acc 0.3913 | lr 5.03e-06
+
+vgg16] epoch 08 | train_loss 22.39527 | train_acc 0.3883 | val_loss 2.37160 | val_acc 0.4022 | lr 4.11e-06
+
+vgg16] epoch 09 | train_loss 21.98335 | train_acc 0.3934 | val_loss 2.36359 | val_acc 0.4130 | lr 3.25e-06
+
+vgg16] epoch 10 | train_loss 21.59818 | train_acc 0.3992 | val_loss 2.39378 | val_acc 0.4103 | lr 2.49e-06
+
+vgg16] epoch 11 | train_loss 21.48416 | train_acc 0.4010 | val_loss 2.38004 | val_acc 0.4130 | lr 1.86e-06
+
+vgg16] epoch 12 | train_loss 21.56877 | train_acc 0.4055 | val_loss 2.40706 | val_acc 0.4158 | lr 1.39e-06
+
+vgg16] epoch 13 | train_loss 21.41527 | train_acc 0.3907 | val_loss 2.40763 | val_acc 0.4212 | lr 1.10e-06
+
+vgg16] epoch 14 | train_loss 21.57938 | train_acc 0.4079 | val_loss 2.39351 | val_acc 0.4185 | lr 1.00e-06
+
+  best val_acc = 0.4212 -> arch5_5conv__vgg_td512.pth
+
+====================================================================================================
+
+[16/18] arch6_6conv_largest__resnet_td2048 | teacher=resnet dim=2048 convs=6
+
+  trainable params: 3,424,101
+
+resnet50] epoch 00 | train_loss 3.47828 | train_acc 0.2135 | val_loss 2.19715 | val_acc 0.3560 | lr 9.90e-06
+
+resnet50] epoch 01 | train_loss 2.74834 | train_acc 0.3415 | val_loss 2.03541 | val_acc 0.3832 | lr 9.61e-06
+
+resnet50] epoch 02 | train_loss 2.63321 | train_acc 0.3774 | val_loss 1.97647 | val_acc 0.4266 | lr 9.14e-06
+
+resnet50] epoch 03 | train_loss 2.56421 | train_acc 0.3940 | val_loss 2.03837 | val_acc 0.3614 | lr 8.51e-06
+
+resnet50] epoch 04 | train_loss 2.51319 | train_acc 0.4073 | val_loss 1.93138 | val_acc 0.4022 | lr 7.75e-06
+
+resnet50] epoch 05 | train_loss 2.48605 | train_acc 0.4149 | val_loss 1.91175 | val_acc 0.4239 | lr 6.89e-06
+
+resnet50] epoch 06 | train_loss 2.46981 | train_acc 0.4327 | val_loss 1.88913 | val_acc 0.4212 | lr 5.97e-06
+
+resnet50] epoch 07 | train_loss 2.43059 | train_acc 0.4224 | val_loss 1.90309 | val_acc 0.4293 | lr 5.03e-06
+
+resnet50] epoch 08 | train_loss 2.39776 | train_acc 0.4444 | val_loss 1.88747 | val_acc 0.4130 | lr 4.11e-06
+
+resnet50] epoch 09 | train_loss 2.36761 | train_acc 0.4493 | val_loss 1.87961 | val_acc 0.4266 | lr 3.25e-06
+
+resnet50] epoch 10 | train_loss 2.37667 | train_acc 0.4574 | val_loss 1.84697 | val_acc 0.4348 | lr 2.49e-06
+
+resnet50] epoch 11 | train_loss 2.39928 | train_acc 0.4481 | val_loss 1.86907 | val_acc 0.4293 | lr 1.86e-06
+
+resnet50] epoch 12 | train_loss 2.36701 | train_acc 0.4638 | val_loss 1.84546 | val_acc 0.4375 | lr 1.39e-06
+
+resnet50] epoch 13 | train_loss 2.36348 | train_acc 0.4532 | val_loss 1.83350 | val_acc 0.4375 | lr 1.10e-06
+
+resnet50] epoch 14 | train_loss 2.37066 | train_acc 0.4611 | val_loss 1.83257 | val_acc 0.4457 | lr 1.00e-06
+
+  best val_acc = 0.4457 -> arch6_6conv_largest__resnet_td2048.pth
+
+====================================================================================================
+
+[17/18] arch6_6conv_largest__convnext_td1024 | teacher=convnext dim=1024 convs=6
+
+  trainable params: 2,860,901
+
+convnext_base] epoch 00 | train_loss 8.35479 | train_acc 0.0468 | val_loss 3.54711 | val_acc 0.0679 | lr 9.90e-06
+
+convnext_base] epoch 01 | train_loss 8.16600 | train_acc 0.0791 | val_loss 3.40306 | val_acc 0.1141 | lr 9.61e-06
+
+convnext_base] epoch 02 | train_loss 7.82836 | train_acc 0.1066 | val_loss 3.19879 | val_acc 0.1277 | lr 9.14e-06
+
+convnext_base] epoch 03 | train_loss 7.57426 | train_acc 0.1211 | val_loss 3.12706 | val_acc 0.1168 | lr 8.51e-06
+
+convnext_base] epoch 04 | train_loss 7.48753 | train_acc 0.1277 | val_loss 3.10545 | val_acc 0.1250 | lr 7.75e-06
+
+convnext_base] epoch 05 | train_loss 7.40721 | train_acc 0.1329 | val_loss 3.09240 | val_acc 0.1223 | lr 6.89e-06
+
+convnext_base] epoch 06 | train_loss 7.33725 | train_acc 0.1458 | val_loss 3.05282 | val_acc 0.1332 | lr 5.97e-06
+
+convnext_base] epoch 07 | train_loss 7.29259 | train_acc 0.1428 | val_loss 3.07269 | val_acc 0.1359 | lr 5.03e-06
+
+convnext_base] epoch 08 | train_loss 7.23256 | train_acc 0.1540 | val_loss 3.02583 | val_acc 0.1467 | lr 4.11e-06
+
+convnext_base] epoch 09 | train_loss 7.22030 | train_acc 0.1655 | val_loss 3.02339 | val_acc 0.1495 | lr 3.25e-06
+
+convnext_base] epoch 10 | train_loss 7.19625 | train_acc 0.1618 | val_loss 3.03706 | val_acc 0.1440 | lr 2.49e-06
+
+convnext_base] epoch 11 | train_loss 7.18263 | train_acc 0.1658 | val_loss 3.02611 | val_acc 0.1413 | lr 1.86e-06
+
+convnext_base] epoch 12 | train_loss 7.18158 | train_acc 0.1591 | val_loss 3.00890 | val_acc 0.1522 | lr 1.39e-06
+
+convnext_base] epoch 13 | train_loss 7.15227 | train_acc 0.1639 | val_loss 3.02324 | val_acc 0.1440 | lr 1.10e-06
+
+convnext_base] epoch 14 | train_loss 7.15633 | train_acc 0.1691 | val_loss 3.01150 | val_acc 0.1440 | lr 1.00e-06
+
+  best val_acc = 0.1522 -> arch6_6conv_largest__convnext_td1024.pth
+
+====================================================================================================
+
+[18/18] arch6_6conv_largest__vgg_td512 | teacher=vgg dim=512 convs=6
+
+  trainable params: 2,579,301
+
+vgg16] epoch 00 | train_loss 34.19109 | train_acc 0.1250 | val_loss 2.84274 | val_acc 0.2255 | lr 9.90e-06
+
+vgg16] epoch 01 | train_loss 30.86248 | train_acc 0.2739 | val_loss 2.38764 | val_acc 0.2690 | lr 9.61e-06
+
+vgg16] epoch 02 | train_loss 28.12236 | train_acc 0.3031 | val_loss 2.15457 | val_acc 0.3560 | lr 9.14e-06
+
+vgg16] epoch 03 | train_loss 25.99652 | train_acc 0.3421 | val_loss 2.14988 | val_acc 0.3668 | lr 8.51e-06
+
+vgg16] epoch 04 | train_loss 24.36341 | train_acc 0.3599 | val_loss 2.18215 | val_acc 0.3750 | lr 7.75e-06
+
+vgg16] epoch 05 | train_loss 23.19545 | train_acc 0.3801 | val_loss 2.17897 | val_acc 0.4022 | lr 6.89e-06
+
+vgg16] epoch 06 | train_loss 22.24879 | train_acc 0.3825 | val_loss 2.20860 | val_acc 0.4103 | lr 5.97e-06
+
+vgg16] epoch 07 | train_loss 21.80931 | train_acc 0.3986 | val_loss 2.23758 | val_acc 0.4212 | lr 5.03e-06
+
+vgg16] epoch 08 | train_loss 21.08803 | train_acc 0.4097 | val_loss 2.26379 | val_acc 0.4266 | lr 4.11e-06
+
+vgg16] epoch 09 | train_loss 20.90079 | train_acc 0.4094 | val_loss 2.26557 | val_acc 0.4212 | lr 3.25e-06
+
+vgg16] epoch 10 | train_loss 20.57057 | train_acc 0.4287 | val_loss 2.29400 | val_acc 0.4239 | lr 2.49e-06
+
+vgg16] epoch 11 | train_loss 20.37546 | train_acc 0.4348 | val_loss 2.29715 | val_acc 0.4185 | lr 1.86e-06
+
+vgg16] epoch 12 | train_loss 20.47288 | train_acc 0.4209 | val_loss 2.28875 | val_acc 0.4130 | lr 1.39e-06
+
+vgg16] epoch 13 | train_loss 20.33030 | train_acc 0.4176 | val_loss 2.29492 | val_acc 0.4158 | lr 1.10e-06
+
+vgg16] epoch 14 | train_loss 20.47452 | train_acc 0.4242 | val_loss 2.30351 | val_acc 0.4212 | lr 1.00e-06
+
+  best val_acc = 0.4266 -> arch6_6conv_largest__vgg_td512.pth
+
+====================================================================================================
+
+Done. Summary -> C:\Estudos\Unicamp\9_semestre\projeto_dupla_mc934\convnet-knowledge-distillation\students_weights\classifier_train\classifier_summary.json 
+

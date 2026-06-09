@@ -14,11 +14,13 @@ avgpool / flatten / linear, see :func:`teacher_head`), so the head's pooling
 handles the spatial size (1x1 for ResNet/ConvNeXt, 7x7 for VGG) -- every teacher
 works, including VGG (whose head flattens its 7x7 map -> 512*7*7 = 25088).
 
-Distillation target -- :meth:`project` reuses the head's *own* pooling
-(``classifier[0]``) so it matches exactly what the teacher's final classifier
-consumes:
+Distillation target -- :meth:`pooled_feature` (used by :meth:`project` and the
+training loop) reproduces the head's pre-Linear transform so it matches exactly
+what the teacher's final Linear consumes:
 
-- ResNet-50 / ConvNeXt: ``AdaptiveAvgPool2d(1)`` -> post-GAP ``[teacher_dim]``.
+- ResNet-50: ``AdaptiveAvgPool2d(1)`` -> post-GAP ``[teacher_dim]``.
+- ConvNeXt-Base: ``AdaptiveAvgPool2d(1)`` -> ``LayerNorm2d`` -> post-GAP, post-
+  norm ``[teacher_dim]`` (the head normalizes the pooled map before its Linear).
 - VGG-16: ``AdaptiveAvgPool2d(7)`` -> ``[512, 7, 7]`` flattened to 25088 -- the
   spatial map the VGG classifier actually uses (its features feed the flattened
   7x7 map, not a post-GAP vector).
@@ -133,11 +135,13 @@ class StudentTeacherHead(nn.Module):
         teacher_dim: int,
         num_classes: int,
         head: nn.Module,
+        kind: str,
         freeze_head: bool = False,
     ):
         super().__init__()
         self.teacher_dim = teacher_dim
         self.num_classes = num_classes
+        self.kind = kind
 
         # Conv backbone from the JSON, tracking the last conv's channel count.
         blocks = []
@@ -170,10 +174,23 @@ class StudentTeacherHead(nn.Module):
             for param in self.classifier.parameters():
                 param.requires_grad = False
 
-    def project(self, x):
-        """Distillation target: the representation fed to the head's classifier.
+    def pooled_feature(self, fmap):
+        """Pre-Linear representation the teacher's classifier consumes, computed
+        from the student's final conv map.
+
+        Mirrors the tail of ``distill.teacher_encode`` (keep the two in sync):
+        post-GAP for ResNet-50 / VGG-16, and post-GAP **+ LayerNorm** for
+        ConvNeXt-Base, whose ``classifier`` normalizes the pooled map before the
+        Linear -- so the student must apply that ``LayerNorm2d`` as well.
         """
-        return torch.flatten(self.classifier[0](self.encoder(x)), 1)
+        x = self.classifier[0](fmap)          # teacher avgpool (every kind)
+        if self.kind == "convnext_base":
+            x = self.classifier[1][0](x)      # LayerNorm2d, applied before the Linear
+        return torch.flatten(x, 1)
+
+    def project(self, x):
+        """Distillation target: the representation fed to the head's classifier."""
+        return self.pooled_feature(self.encoder(x))
 
     def forward(self, x):
         """Logits from the teacher head applied to the conv map."""

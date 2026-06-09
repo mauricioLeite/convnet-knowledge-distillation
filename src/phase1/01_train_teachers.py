@@ -17,7 +17,7 @@ import pandas as pd
 import torch
 import torch.nn.functional as F
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -41,9 +41,10 @@ CHECKPOINT_DIR = PROJECT_ROOT / "outputs" / "checkpoints" / "teachers"
 FIGURE_DIR = PROJECT_ROOT / "outputs" / "figures"
 TABLE_DIR = PROJECT_ROOT / "outputs" / "tables"
 
-TEACHERS = ("resnet50", "convnext_tiny")
-FINETUNE_TEACHERS = ("resnet50", "convnext_tiny")
-DATASETS = ("cifar-100", "flowers-102", "tiny-imagenet-200")
+TEACHERS = ("resnet50", "convnext_base", "vgg16_bn")
+FINETUNE_TEACHERS = ("resnet50", "convnext_base")
+# DATASETS = ("oxford-pets", "flowers-102", "tiny-imagenet-200")
+DATASETS = ("oxford-pets", "flowers-102")
 NUM_WORKERS = 8
 
 DEFAULTS: dict[str, Any] = {
@@ -51,17 +52,19 @@ DEFAULTS: dict[str, Any] = {
     "lr": 1e-3,
     "weight_decay": 1e-4,
     "batch_size": 256,
+    "patience": 4
 }
 
-# Flowers-102 has only ~1,020 training images, so it uses a smaller batch to
-# get more optimizer steps per epoch (and more epochs) than the larger datasets.
 RUN_OVERRIDES: dict[tuple[str, str], dict[str, Any]] = {
-    ("convnext_tiny", "cifar-100"):         {"num_epochs": 20},
-    ("convnext_tiny", "tiny-imagenet-200"): {"num_epochs": 15},
-    ("convnext_tiny", "flowers-102"):       {"num_epochs": 30, "batch_size": 64},
-    ("resnet50", "cifar-100"):              {"num_epochs": 20},
-    ("resnet50", "tiny-imagenet-200"):      {"num_epochs": 15},
+    ("convnext_base", "oxford-pets"):         {"num_epochs": 20},
+    # ("convnext_base", "tiny-imagenet-200"): {"num_epochs": 20},
+    ("convnext_base", "flowers-102"):       {"num_epochs": 30, "batch_size": 64},
+    ("resnet50", "oxford-pets"):              {"num_epochs": 20},
+    # ("resnet50", "tiny-imagenet-200"):      {"num_epochs": 20},
     ("resnet50", "flowers-102"):            {"num_epochs": 30, "batch_size": 64},
+    ("vgg16_bn", "oxford-pets"):             {"num_epochs": 20},
+    # ("vgg16_bn", "tiny-imagenet-200"):       {"num_epochs": 20},
+    ("vgg16_bn", "flowers-102"):             {"num_epochs": 30, "batch_size": 64},
 }
 
 DEFAULTS_FT: dict[str, Any] = {
@@ -73,20 +76,17 @@ DEFAULTS_FT: dict[str, Any] = {
     "batch_size": 256,
     "label_smoothing": 0.1,
     "n_blocks": 1,
+    "patience": 4
 }
 
-# Fine-tuning retains the autograd graph for the unfrozen top block, so it uses
-# more memory than frozen-head training at the same batch size. Flowers-102
-# again uses a smaller batch (more steps) for its ~1,020 training images.
 RUN_OVERRIDES_FT: dict[tuple[str, str], dict[str, Any]] = {
-    ("convnext_tiny", "cifar-100"):         {"num_epochs": 15},
-    ("convnext_tiny", "tiny-imagenet-200"): {"num_epochs": 10},
-    ("convnext_tiny", "flowers-152"):       {"num_epochs": 20, "batch_size": 64},
-    ("resnet50", "cifar-100"):              {"num_epochs": 10},
-    ("resnet50", "tiny-imagenet-200"):      {"num_epochs": 10},
+    ("convnext_base", "oxford-pets"):         {"num_epochs": 15},
+    # ("convnext_base", "tiny-imagenet-200"): {"num_epochs": 20},
+    ("convnext_base", "flowers-152"):       {"num_epochs": 20, "batch_size": 64},
+    ("resnet50", "oxford-pets"):              {"num_epochs": 20},
+    # ("resnet50", "tiny-imagenet-200"):      {"num_epochs": 20},
     ("resnet50", "flowers-102"):            {"num_epochs": 20, "batch_size": 64},
 }
-
 
 def parse_args() -> argparse.Namespace:
     """Parses the two stage-skip options."""
@@ -234,6 +234,7 @@ def train_frozen_teachers(
                 num_epochs=config["num_epochs"],
                 lr=config["lr"],
                 weight_decay=config["weight_decay"],
+                patience=config["patience"],
                 device=device,
                 checkpoint_path=str(output_checkpoint),
             )
@@ -514,6 +515,7 @@ def train_finetuned_teachers(
                 weight_decay=config["weight_decay"],
                 label_smoothing=config["label_smoothing"],
                 n_blocks=config["n_blocks"],
+                patience=config["patience"],
                 device=device,
                 checkpoint_path=str(output_checkpoint),
             )

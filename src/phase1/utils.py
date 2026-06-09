@@ -608,7 +608,7 @@ def _load_oxford_pets(
     # TorchVision manages its own "oxford-iiit-pet" subfolder, so the dataset
     # lives at ``<data_root>/oxford-iiit-pet`` (matching ``root="data"`` used to
     # download it).
-    root = Path(data_root)
+    root = Path(data_root) / "oxford-pet"
     # Oxford Pets uses a milder Resize(256) + RandomCrop(224) augmentation
     # instead of the shared RandomResizedCrop; the eval transform is unchanged.
     pets_train_transform = transforms.Compose([

@@ -71,6 +71,7 @@ def train_teacher_classifier(
     weight_decay: float = 1e-4,
     device: str = "cuda",
     checkpoint_path: Optional[str] = None,
+    patience: int = 0,
 ) -> dict[str, list[float] | float | int]:
     """Trains only the teacher model's linear classifier head.
 
@@ -83,6 +84,7 @@ def train_teacher_classifier(
         weight_decay: AdamW weight decay.
         device: Torch device name.
         checkpoint_path: Optional path for the best classifier checkpoint.
+        patience: Early-stopping patience in epochs (0 = disabled).
 
     Returns:
         History dictionary containing per-epoch train/validation metrics,
@@ -110,6 +112,7 @@ def train_teacher_classifier(
         "best_epoch": 0,
     }
     best_val_acc = -1.0
+    epochs_no_improve = 0
 
     for epoch in range(1, num_epochs + 1):
         model.train()
@@ -162,6 +165,7 @@ def train_teacher_classifier(
             best_val_acc = val_acc
             history["best_val_acc"] = best_val_acc
             history["best_epoch"] = epoch
+            epochs_no_improve = 0
             if checkpoint_path is not None:
                 checkpoint_file = Path(checkpoint_path)
                 checkpoint_file.parent.mkdir(parents=True, exist_ok=True)
@@ -176,12 +180,18 @@ def train_teacher_classifier(
                     },
                     checkpoint_file,
                 )
+        else:
+            epochs_no_improve += 1
 
         print(
             f"Epoch [{epoch}/{num_epochs}] | "
             f"Train Loss: {train_loss:.4f}  Acc: {train_acc:.2f}% | "
             f"Val Loss: {val_loss:.4f}  Acc: {val_acc:.2f}%"
         )
+
+        if patience > 0 and epochs_no_improve >= patience:
+            print(f"Early stopping at epoch {epoch} (no improvement for {patience} epochs).")
+            break
 
     return history
 
@@ -199,6 +209,7 @@ def train_teacher_finetune(
     n_blocks: int = 1,
     device: str = "cuda",
     checkpoint_path: Optional[str] = None,
+    patience: int = 0,
 ) -> dict[str, list[float] | float | int]:
     """Trains the teacher with a partially unfrozen encoder (light fine-tuning).
 
@@ -222,6 +233,7 @@ def train_teacher_finetune(
             checkpoint for downstream phases.
         device: Torch device name.
         checkpoint_path: Optional path for the best fine-tuned checkpoint.
+        patience: Early-stopping patience in epochs (0 = disabled).
 
     Returns:
         History dict with per-epoch train/val metrics, ``best_val_acc``, and
@@ -269,6 +281,7 @@ def train_teacher_finetune(
         "best_epoch": 0,
     }
     best_val_acc = -1.0
+    epochs_no_improve = 0
 
     for epoch in range(1, num_epochs + 1):
         model.train()
@@ -322,6 +335,7 @@ def train_teacher_finetune(
             best_val_acc = val_acc
             history["best_val_acc"] = best_val_acc
             history["best_epoch"] = epoch
+            epochs_no_improve = 0
             if checkpoint_path is not None:
                 checkpoint_file = Path(checkpoint_path)
                 checkpoint_file.parent.mkdir(parents=True, exist_ok=True)
@@ -339,12 +353,18 @@ def train_teacher_finetune(
                     },
                     checkpoint_file,
                 )
+        else:
+            epochs_no_improve += 1
 
         print(
             f"Epoch [{epoch}/{num_epochs}] | "
             f"Train Loss: {train_loss:.4f}  Acc: {train_acc:.2f}% | "
             f"Val Loss: {val_loss:.4f}  Acc: {val_acc:.2f}%"
         )
+
+        if patience > 0 and epochs_no_improve >= patience:
+            print(f"Early stopping at epoch {epoch} (no improvement for {patience} epochs).")
+            break
 
     return history
 

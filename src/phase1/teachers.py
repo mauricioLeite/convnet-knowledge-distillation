@@ -5,9 +5,11 @@ from __future__ import annotations
 import torch
 from torch import Tensor, nn
 from torchvision.models import (
+    ConvNeXt_Base_Weights,
     ConvNeXt_Tiny_Weights,
     ResNet50_Weights,
     VGG16_BN_Weights,
+    convnext_base,
     convnext_tiny,
     resnet50,
     vgg16_bn,
@@ -17,21 +19,16 @@ from torchvision.models import (
 def _normalize_backbone_name(backbone_name: str) -> str:
     name = backbone_name.lower().replace("-", "_")
     aliases = {
-        "vgg": "vgg16_bn",
-        "vgg16": "vgg16_bn",
         "vgg16_bn": "vgg16_bn",
-        "resnet": "resnet50",
-        "resnet_50": "resnet50",
         "resnet50": "resnet50",
-        "convnext": "convnext_tiny",
-        "convnext_tiny": "convnext_tiny",
+        "convnext_base": "convnext_base",
     }
     try:
         return aliases[name]
     except KeyError as exc:
         raise ValueError(
             f"Unknown backbone '{backbone_name}'. Expected one of: "
-            "vgg16_bn, resnet50, convnext_tiny."
+            "vgg16_bn, resnet50, convnext_tiny, convnext_base."
         ) from exc
 
 
@@ -51,8 +48,8 @@ class TeacherModel(nn.Module):
         """Initializes a frozen pretrained backbone and fresh linear head.
 
         Args:
-            backbone_name: One of ``vgg16_bn``, ``resnet50``, or
-                ``convnext_tiny``.
+            backbone_name: One of ``vgg16_bn``, ``resnet50``,
+                ``convnext_tiny``, or ``convnext_base``.
             num_classes: Number of classes for the downstream dataset.
         """
         super().__init__()
@@ -76,6 +73,9 @@ class TeacherModel(nn.Module):
         if backbone_name == "convnext_tiny":
             model = convnext_tiny(weights=ConvNeXt_Tiny_Weights.IMAGENET1K_V1)
             return model.features, 768
+        if backbone_name == "convnext_base":
+            model = convnext_base(weights=ConvNeXt_Base_Weights.IMAGENET1K_V1)
+            return model.features, 1024
         raise ValueError(f"Unsupported backbone '{backbone_name}'.")
 
     def train(self, mode: bool = True) -> "TeacherModel":
@@ -96,7 +96,7 @@ class TeacherModel(nn.Module):
 
         Unfreezes only the last ``n_blocks`` sub-blocks *within* the final
         encoder stage (``layer4`` for ResNet-50, ``features[7]`` for
-        ConvNeXt-Tiny, the conv5 block for VGG-16-BN), leaving the rest of the
+        ConvNeXt-Tiny/Base, the conv5 block for VGG-16-BN), leaving the rest of the
         encoder frozen. This is a light-touch alternative to unfreezing a whole
         stage, which would be ~50–64% of the encoder.
 

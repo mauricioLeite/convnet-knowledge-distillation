@@ -75,10 +75,11 @@ ARCHS = {
         res(64, 128, stride=2),
         res(128, 256, stride=2),
     ],
-    "arch6_6conv_res": [             # 3 ResBlocks = 6 convs
-        res(3, 128, stride=2),
+    "arch6_6conv_res": [             # Stem (1) + 2 ResBlocks (4) + 1 Conv (1) = 6 convs
+        conv(3, 64, 7, 2, 3, (3, 2, 1)), 
+        res(64, 128, stride=2),
         res(128, 256, stride=2),
-        res(256, 256, stride=1),
+        conv(256, 256, 3, 1, 1),         # Adiciona capacidade no final
     ],
 }
 

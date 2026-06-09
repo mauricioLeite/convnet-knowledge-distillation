@@ -61,11 +61,12 @@ def evaluate(teacher, student, loader, kind, device,
     for x, y in loader:
         x = x.to(device, non_blocking=True)
         y = y.to(device, non_blocking=True)
-        with torch.amp.autocast("cuda", dtype=torch.float32):
-            fs = student.project(x)
+        with torch.amp.autocast("cuda", dtype=torch.float16):
+            fmap = student.encoder(x)
+            fs = torch.flatten(student.classifier[0](fmap), 1)
             ft = teacher_encode(teacher, x, kind)
             mse = F.mse_loss(fs.float(), ft.float())
-            logits = student(x)
+            logits = student.classifier(fmap)
             loss = mse_weight * mse
             if ce_weight > 0:
                 loss = loss + ce_weight * F.cross_entropy(logits, y)
@@ -138,13 +139,16 @@ def train_student(
         for x, y in train_loader:
             x = x.to(device, non_blocking=True)
             y = y.to(device, non_blocking=True)
-            with torch.amp.autocast("cuda", dtype=torch.float32):
-                fs = student.project(x)
+            with torch.amp.autocast("cuda", dtype=torch.float16):
+                # Run the student encoder once; derive both the projected
+                # (post-GAP) features and the head logits from the same map.
+                fmap = student.encoder(x)
+                fs = torch.flatten(student.classifier[0](fmap), 1)
                 ft = teacher_encode(teacher, x, kind)
                 loss = mse_weight * F.mse_loss(fs.float(), ft.float())
 
                 if use_head_loss:
-                    logits = student(x)
+                    logits = student.classifier(fmap)
                     if ce_weight > 0:
                         loss = loss + ce_weight * F.cross_entropy(logits, y)
                     if kd_weight > 0:
@@ -158,7 +162,7 @@ def train_student(
                     # MSE-only: logits aren't in the loss, so skip the head's
                     # autograd graph -- still need them for train_acc.
                     with torch.no_grad():
-                        logits = student(x)
+                        logits = student.classifier(fmap)
 
             optimizer.zero_grad()
             scaler.scale(loss).backward()

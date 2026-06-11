@@ -1,0 +1,2294 @@
+[
+  {
+    "id": "arch1_3conv_narrow__resnet_td2048_pre_gap",
+    "arch": "arch1_3conv_narrow",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "num_classes": 102,
+    "target_mode": "pre_gap",
+    "n_convs": 3,
+    "last_enc_channels": 64,
+    "encoder_params": 25616,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 16,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 16,
+            "out_channels": 32,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch1_3conv_narrow__resnet_td2048_post_gap",
+    "arch": "arch1_3conv_narrow",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "num_classes": 102,
+    "target_mode": "post_gap",
+    "n_convs": 3,
+    "last_enc_channels": 64,
+    "encoder_params": 25616,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 16,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 16,
+            "out_channels": 32,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch1_3conv_narrow__convnext_td1024_pre_gap",
+    "arch": "arch1_3conv_narrow",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "num_classes": 102,
+    "target_mode": "pre_gap",
+    "n_convs": 3,
+    "last_enc_channels": 64,
+    "encoder_params": 25616,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 16,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 16,
+            "out_channels": 32,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch1_3conv_narrow__convnext_td1024_post_gap",
+    "arch": "arch1_3conv_narrow",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "num_classes": 102,
+    "target_mode": "post_gap",
+    "n_convs": 3,
+    "last_enc_channels": 64,
+    "encoder_params": 25616,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 16,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 16,
+            "out_channels": 32,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch1_3conv_narrow__vgg_td512_pre_gap",
+    "arch": "arch1_3conv_narrow",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "num_classes": 102,
+    "target_mode": "pre_gap",
+    "n_convs": 3,
+    "last_enc_channels": 64,
+    "encoder_params": 25616,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 16,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 16,
+            "out_channels": 32,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch1_3conv_narrow__vgg_td512_post_gap",
+    "arch": "arch1_3conv_narrow",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "num_classes": 102,
+    "target_mode": "post_gap",
+    "n_convs": 3,
+    "last_enc_channels": 64,
+    "encoder_params": 25616,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 16,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 16,
+            "out_channels": 32,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch2_3conv__resnet_td2048_pre_gap",
+    "arch": "arch2_3conv",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "num_classes": 102,
+    "target_mode": "pre_gap",
+    "n_convs": 3,
+    "last_enc_channels": 128,
+    "encoder_params": 97312,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 32,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch2_3conv__resnet_td2048_post_gap",
+    "arch": "arch2_3conv",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "num_classes": 102,
+    "target_mode": "post_gap",
+    "n_convs": 3,
+    "last_enc_channels": 128,
+    "encoder_params": 97312,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 32,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch2_3conv__convnext_td1024_pre_gap",
+    "arch": "arch2_3conv",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "num_classes": 102,
+    "target_mode": "pre_gap",
+    "n_convs": 3,
+    "last_enc_channels": 128,
+    "encoder_params": 97312,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 32,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch2_3conv__convnext_td1024_post_gap",
+    "arch": "arch2_3conv",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "num_classes": 102,
+    "target_mode": "post_gap",
+    "n_convs": 3,
+    "last_enc_channels": 128,
+    "encoder_params": 97312,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 32,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch2_3conv__vgg_td512_pre_gap",
+    "arch": "arch2_3conv",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "num_classes": 102,
+    "target_mode": "pre_gap",
+    "n_convs": 3,
+    "last_enc_channels": 128,
+    "encoder_params": 97312,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 32,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch2_3conv__vgg_td512_post_gap",
+    "arch": "arch2_3conv",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "num_classes": 102,
+    "target_mode": "post_gap",
+    "n_convs": 3,
+    "last_enc_channels": 128,
+    "encoder_params": 97312,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 32,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch3_4conv__resnet_td2048_pre_gap",
+    "arch": "arch3_4conv",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "num_classes": 102,
+    "target_mode": "pre_gap",
+    "n_convs": 4,
+    "last_enc_channels": 256,
+    "encoder_params": 392736,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 32,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 128,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch3_4conv__resnet_td2048_post_gap",
+    "arch": "arch3_4conv",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "num_classes": 102,
+    "target_mode": "post_gap",
+    "n_convs": 4,
+    "last_enc_channels": 256,
+    "encoder_params": 392736,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 32,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 128,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch3_4conv__convnext_td1024_pre_gap",
+    "arch": "arch3_4conv",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "num_classes": 102,
+    "target_mode": "pre_gap",
+    "n_convs": 4,
+    "last_enc_channels": 256,
+    "encoder_params": 392736,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 32,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 128,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch3_4conv__convnext_td1024_post_gap",
+    "arch": "arch3_4conv",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "num_classes": 102,
+    "target_mode": "post_gap",
+    "n_convs": 4,
+    "last_enc_channels": 256,
+    "encoder_params": 392736,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 32,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 128,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch3_4conv__vgg_td512_pre_gap",
+    "arch": "arch3_4conv",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "num_classes": 102,
+    "target_mode": "pre_gap",
+    "n_convs": 4,
+    "last_enc_channels": 256,
+    "encoder_params": 392736,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 32,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 128,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch3_4conv__vgg_td512_post_gap",
+    "arch": "arch3_4conv",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "num_classes": 102,
+    "target_mode": "post_gap",
+    "n_convs": 4,
+    "last_enc_channels": 256,
+    "encoder_params": 392736,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 32,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "conv2d",
+            "in_channels": 32,
+            "out_channels": 64,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "conv2d",
+            "in_channels": 64,
+            "out_channels": 128,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 128,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch4_4conv_res__resnet_td2048_pre_gap",
+    "arch": "arch4_4conv_res",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "num_classes": 102,
+    "target_mode": "pre_gap",
+    "n_convs": 4,
+    "last_enc_channels": 256,
+    "encoder_params": 1071104,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "residual_block",
+            "in_channels": 3,
+            "out_channels": 128,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "residual_block",
+            "in_channels": 128,
+            "out_channels": 256,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch4_4conv_res__resnet_td2048_post_gap",
+    "arch": "arch4_4conv_res",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "num_classes": 102,
+    "target_mode": "post_gap",
+    "n_convs": 4,
+    "last_enc_channels": 256,
+    "encoder_params": 1071104,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "residual_block",
+            "in_channels": 3,
+            "out_channels": 128,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "residual_block",
+            "in_channels": 128,
+            "out_channels": 256,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch4_4conv_res__convnext_td1024_pre_gap",
+    "arch": "arch4_4conv_res",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "num_classes": 102,
+    "target_mode": "pre_gap",
+    "n_convs": 4,
+    "last_enc_channels": 256,
+    "encoder_params": 1071104,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "residual_block",
+            "in_channels": 3,
+            "out_channels": 128,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "residual_block",
+            "in_channels": 128,
+            "out_channels": 256,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch4_4conv_res__convnext_td1024_post_gap",
+    "arch": "arch4_4conv_res",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "num_classes": 102,
+    "target_mode": "post_gap",
+    "n_convs": 4,
+    "last_enc_channels": 256,
+    "encoder_params": 1071104,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "residual_block",
+            "in_channels": 3,
+            "out_channels": 128,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "residual_block",
+            "in_channels": 128,
+            "out_channels": 256,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch4_4conv_res__vgg_td512_pre_gap",
+    "arch": "arch4_4conv_res",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "num_classes": 102,
+    "target_mode": "pre_gap",
+    "n_convs": 4,
+    "last_enc_channels": 256,
+    "encoder_params": 1071104,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "residual_block",
+            "in_channels": 3,
+            "out_channels": 128,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "residual_block",
+            "in_channels": 128,
+            "out_channels": 256,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch4_4conv_res__vgg_td512_post_gap",
+    "arch": "arch4_4conv_res",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "num_classes": 102,
+    "target_mode": "post_gap",
+    "n_convs": 4,
+    "last_enc_channels": 256,
+    "encoder_params": 1071104,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "residual_block",
+            "in_channels": 3,
+            "out_channels": 128,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "residual_block",
+            "in_channels": 128,
+            "out_channels": 256,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch5_5conv_res__resnet_td2048_pre_gap",
+    "arch": "arch5_5conv_res",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "num_classes": 102,
+    "target_mode": "pre_gap",
+    "n_convs": 5,
+    "last_enc_channels": 256,
+    "encoder_params": 1158720,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 64,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "residual_block",
+            "in_channels": 64,
+            "out_channels": 128,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "residual_block",
+            "in_channels": 128,
+            "out_channels": 256,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch5_5conv_res__resnet_td2048_post_gap",
+    "arch": "arch5_5conv_res",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "num_classes": 102,
+    "target_mode": "post_gap",
+    "n_convs": 5,
+    "last_enc_channels": 256,
+    "encoder_params": 1158720,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 64,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "residual_block",
+            "in_channels": 64,
+            "out_channels": 128,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "residual_block",
+            "in_channels": 128,
+            "out_channels": 256,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch5_5conv_res__convnext_td1024_pre_gap",
+    "arch": "arch5_5conv_res",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "num_classes": 102,
+    "target_mode": "pre_gap",
+    "n_convs": 5,
+    "last_enc_channels": 256,
+    "encoder_params": 1158720,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 64,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "residual_block",
+            "in_channels": 64,
+            "out_channels": 128,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "residual_block",
+            "in_channels": 128,
+            "out_channels": 256,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch5_5conv_res__convnext_td1024_post_gap",
+    "arch": "arch5_5conv_res",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "num_classes": 102,
+    "target_mode": "post_gap",
+    "n_convs": 5,
+    "last_enc_channels": 256,
+    "encoder_params": 1158720,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 64,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "residual_block",
+            "in_channels": 64,
+            "out_channels": 128,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "residual_block",
+            "in_channels": 128,
+            "out_channels": 256,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch5_5conv_res__vgg_td512_pre_gap",
+    "arch": "arch5_5conv_res",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "num_classes": 102,
+    "target_mode": "pre_gap",
+    "n_convs": 5,
+    "last_enc_channels": 256,
+    "encoder_params": 1158720,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 64,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "residual_block",
+            "in_channels": 64,
+            "out_channels": 128,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "residual_block",
+            "in_channels": 128,
+            "out_channels": 256,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch5_5conv_res__vgg_td512_post_gap",
+    "arch": "arch5_5conv_res",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "num_classes": 102,
+    "target_mode": "post_gap",
+    "n_convs": 5,
+    "last_enc_channels": 256,
+    "encoder_params": 1158720,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 64,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "residual_block",
+            "in_channels": 64,
+            "out_channels": 128,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "residual_block",
+            "in_channels": 128,
+            "out_channels": 256,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch6_6conv_res__resnet_td2048_pre_gap",
+    "arch": "arch6_6conv_res",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "num_classes": 102,
+    "target_mode": "pre_gap",
+    "n_convs": 6,
+    "last_enc_channels": 256,
+    "encoder_params": 1749056,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 64,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "residual_block",
+            "in_channels": 64,
+            "out_channels": 128,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "residual_block",
+            "in_channels": 128,
+            "out_channels": 256,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 256,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 1,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch6_6conv_res__resnet_td2048_post_gap",
+    "arch": "arch6_6conv_res",
+    "teacher": "resnet",
+    "teacher_dim": 2048,
+    "num_classes": 102,
+    "target_mode": "post_gap",
+    "n_convs": 6,
+    "last_enc_channels": 256,
+    "encoder_params": 1749056,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 64,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "residual_block",
+            "in_channels": 64,
+            "out_channels": 128,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "residual_block",
+            "in_channels": 128,
+            "out_channels": 256,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 256,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 1,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch6_6conv_res__convnext_td1024_pre_gap",
+    "arch": "arch6_6conv_res",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "num_classes": 102,
+    "target_mode": "pre_gap",
+    "n_convs": 6,
+    "last_enc_channels": 256,
+    "encoder_params": 1749056,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 64,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "residual_block",
+            "in_channels": 64,
+            "out_channels": 128,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "residual_block",
+            "in_channels": 128,
+            "out_channels": 256,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 256,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 1,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch6_6conv_res__convnext_td1024_post_gap",
+    "arch": "arch6_6conv_res",
+    "teacher": "convnext",
+    "teacher_dim": 1024,
+    "num_classes": 102,
+    "target_mode": "post_gap",
+    "n_convs": 6,
+    "last_enc_channels": 256,
+    "encoder_params": 1749056,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 64,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "residual_block",
+            "in_channels": 64,
+            "out_channels": 128,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "residual_block",
+            "in_channels": 128,
+            "out_channels": 256,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 256,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 1,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch6_6conv_res__vgg_td512_pre_gap",
+    "arch": "arch6_6conv_res",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "num_classes": 102,
+    "target_mode": "pre_gap",
+    "n_convs": 6,
+    "last_enc_channels": 256,
+    "encoder_params": 1749056,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 64,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "residual_block",
+            "in_channels": 64,
+            "out_channels": 128,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "residual_block",
+            "in_channels": 128,
+            "out_channels": 256,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 256,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 1,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arch6_6conv_res__vgg_td512_post_gap",
+    "arch": "arch6_6conv_res",
+    "teacher": "vgg",
+    "teacher_dim": 512,
+    "num_classes": 102,
+    "target_mode": "post_gap",
+    "n_convs": 6,
+    "last_enc_channels": 256,
+    "encoder_params": 1749056,
+    "layers": [
+      {
+        "layer1": [
+          {
+            "type": "conv2d",
+            "in_channels": 3,
+            "out_channels": 64,
+            "kernel_size": 7,
+            "stride": 2,
+            "padding": 3
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          },
+          {
+            "type": "MaxPool2d",
+            "kernel_size": 3,
+            "stride": 2,
+            "padding": 1
+          }
+        ]
+      },
+      {
+        "layer2": [
+          {
+            "type": "residual_block",
+            "in_channels": 64,
+            "out_channels": 128,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer3": [
+          {
+            "type": "residual_block",
+            "in_channels": 128,
+            "out_channels": 256,
+            "stride": 2,
+            "groups": 1
+          }
+        ]
+      },
+      {
+        "layer4": [
+          {
+            "type": "conv2d",
+            "in_channels": 256,
+            "out_channels": 256,
+            "kernel_size": 3,
+            "stride": 1,
+            "padding": 1
+          },
+          {
+            "type": "activation",
+            "activation": "gelu"
+          }
+        ]
+      }
+    ]
+  }
+]

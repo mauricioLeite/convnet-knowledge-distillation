@@ -71,6 +71,9 @@ DEFAULTS: dict[str, Any] = {
     "rkd_weight":    0.0,
     "T":             4.0,
     "patience":      5,
+    "eta_min":       1e-6,    # phase-2 (or single-phase) cosine floor
+    "phase1_epochs": 0,       # 0 = single-phase; >0 = MSE-only warm-up then full loss
+    "phase1_eta_min": None,   # phase-1 cosine floor; None -> same as eta_min
 }
 
 # ── per-(teacher, dataset) overrides ─────────────────────────────────────────
@@ -114,7 +117,17 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--rkd-weight",    type=float, default=None)
     p.add_argument("--T",             type=float, default=None)
     p.add_argument("--patience",      type=int,   default=None)
-    p.add_argument("--freeze-classifier", action="store_true", default=True)
+    p.add_argument("--eta-min",       type=float, default=None,
+                   help="Phase-2 (or single-phase) cosine floor LR.")
+    p.add_argument("--phase1-epochs", type=int,   default=None,
+                   help="MSE-only warm-up epochs before the full-loss phase "
+                        "(0 = single-phase training).")
+    p.add_argument("--phase1-eta-min", type=float, default=None,
+                   help="Phase-1 cosine floor LR (defaults to --eta-min).")
+    p.add_argument("--freeze-classifier", action=argparse.BooleanOptionalAction,
+                   default=True,
+                   help="Freeze the glued Phase-1 classifier (default). "
+                        "Use --no-freeze-classifier to train it.")
     p.add_argument("--start-at", type=int, default=1,
                    help="1-based student index to (re)start from within each dataset run.")
     p.add_argument("--tag", default=None,
@@ -144,6 +157,9 @@ def _cli_overrides(args: argparse.Namespace) -> dict[str, Any]:
         "rkd_weight":    args.rkd_weight,
         "T":             args.T,
         "patience":      args.patience,
+        "eta_min":       args.eta_min,
+        "phase1_epochs": args.phase1_epochs,
+        "phase1_eta_min": args.phase1_eta_min,
     }
 
 
@@ -280,6 +296,9 @@ def main() -> None:
                 rkd_weight=cfg_run["rkd_weight"],
                 T=cfg_run["T"],
                 patience=cfg_run["patience"],
+                eta_min=cfg_run["eta_min"],
+                phase1_epochs=cfg_run["phase1_epochs"],
+                phase1_eta_min=cfg_run["phase1_eta_min"],
             )
 
             for (idx, scfg), model, save_path, result in zip(

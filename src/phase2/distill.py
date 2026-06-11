@@ -108,13 +108,17 @@ def _pooled_student_vec(student, fs: torch.Tensor) -> torch.Tensor:
 # ---------------------------------------------------------------------------
 
 class _StudentState:
-    def __init__(self, student, save_path, sid, optimizer, scheduler):
+    def __init__(self, student, save_path, sid):
         self.student    = student
         self.save_path  = save_path
         self.id         = sid
-        self.optimizer  = optimizer
-        self.scheduler  = scheduler
-        self.scaler     = torch.amp.GradScaler("cuda")
+        # optimizer / scheduler / scaler are (re)built per training phase.
+        self.optimizer  = None
+        self.scheduler  = None
+        self.scaler     = None
+        # best_val_acc and the saved checkpoint persist across phases (acc is the
+        # same metric every phase); best_val_loss resets per phase since the loss
+        # definition changes between phases.
         self.best_val_acc   = -1.0
         self.best_val_mse   = float("inf")
         self.best_val_loss  = float("inf")
@@ -192,57 +196,53 @@ def evaluate_group(
 # Training
 # ---------------------------------------------------------------------------
 
-def train_student_group(
+def _run_phase(
+    *,
+    phase_label: str,
+    states: list[_StudentState],
     teacher: nn.Module,
-    students: list,
-    save_paths: list[str],
-    ids: list[str],
     train_loader,
     val_loader,
-    epochs: int,
     device: torch.device,
-    encoder_lr:    float = 1e-3,
-    classifier_lr: float = 1e-5,
-    weight_decay:  float = 1e-2,
-    mse_weight:    float = 1.0,
-    ce_weight:     float = 1.0,
-    kd_weight:     float = 0.0,
-    rkd_weight:    float = 0.0,
-    T:             float = 4.0,
-    patience:      int   = 5,
-) -> list[dict]:
-    """Train all students sharing one frozen teacher in a single loop.
+    epochs: int,
+    eta_min: float,
+    encoder_lr: float,
+    classifier_lr: float,
+    weight_decay: float,
+    mse_weight: float,
+    ce_weight: float,
+    kd_weight: float,
+    rkd_weight: float,
+    T: float,
+    patience: int,
+    early_stop: bool,
+) -> None:
+    """Runs one training phase over all states with a *fresh* optimizer +
+    cosine scheduler (and a fresh GradScaler) per student.
 
-    The teacher runs **once per batch**; both ``feature_map`` and
-    ``pooled_vector`` are extracted in that single pass and handed to each
-    student according to its ``target_mode``.  Students are stepped
-    sequentially within the batch so peak activation memory stays
-    ~one student's graph.
-
-    Returns a list of result dicts (``best_val_acc``, ``val_mse``,
-    ``best_val_loss``) aligned with ``students``.
+    ``best_val_acc`` and the saved checkpoint persist across calls (overall best
+    is kept); ``best_val_loss`` and the patience counter reset each phase because
+    the loss definition (and scale) changes between phases.
     """
-    teacher.to(device).eval()
-    for p in teacher.parameters():
-        p.requires_grad = False
+    need_kd  = kd_weight > 0
+    need_rkd = rkd_weight > 0
+    use_head = ce_weight > 0 or need_kd
 
-    states: list[_StudentState] = []
-    for student, save_path, sid in zip(students, save_paths, ids):
-        student.to(device)
-        enc_params  = [p for name, p in student.named_parameters()
+    for s in states:
+        s.active = True
+        s.epochs_no_improve = 0
+        s.best_val_loss = float("inf")
+        enc_params  = [p for name, p in s.student.named_parameters()
                        if "classifier" not in name and p.requires_grad]
-        head_params = [p for name, p in student.named_parameters()
+        head_params = [p for name, p in s.student.named_parameters()
                        if "classifier" in name and p.requires_grad]
         groups = [{"params": enc_params, "lr": encoder_lr}]
         if head_params:
             groups.append({"params": head_params, "lr": classifier_lr})
-        opt  = torch.optim.AdamW(groups, weight_decay=weight_decay)
-        sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=epochs, eta_min=1e-6)
-        states.append(_StudentState(student, save_path, sid, opt, sched))
-
-    need_kd  = kd_weight > 0
-    need_rkd = rkd_weight > 0
-    use_head = ce_weight > 0 or need_kd
+        s.optimizer = torch.optim.AdamW(groups, weight_decay=weight_decay)
+        s.scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+            s.optimizer, T_max=epochs, eta_min=eta_min)
+        s.scaler = torch.amp.GradScaler("cuda")
 
     for epoch in range(epochs):
         active = [s for s in states if s.active]
@@ -306,7 +306,7 @@ def train_student_group(
             enc_lr     = s.scheduler.get_last_lr()[0]
             cls_lr     = s.scheduler.get_last_lr()[-1]
             print(
-                f"  [{s.id}] epoch {epoch:02d} | train_loss {train_loss:.5f} | "
+                f"  [{s.id}] {phase_label} epoch {epoch:02d} | train_loss {train_loss:.5f} | "
                 f"train_acc {train_acc:.4f} | val_loss {val_loss:.5f} | "
                 f"val_acc {val_acc:.4f} | enc_lr {enc_lr:.2e} | cls_lr {cls_lr:.2e}"
             )
@@ -319,14 +319,96 @@ def train_student_group(
                 torch.save(s.student.state_dict(), s.save_path)
             if improved_loss:
                 s.best_val_loss = val_loss
-            if improved_acc or improved_loss:
-                s.epochs_no_improve = 0
-            else:
-                s.epochs_no_improve += 1
-                if s.epochs_no_improve >= patience:
-                    s.active = False
-                    print(f"  [{s.id}] early stopping at epoch {epoch} "
-                          f"(best_val_acc={s.best_val_acc:.4f})")
+            if early_stop:
+                if improved_acc or improved_loss:
+                    s.epochs_no_improve = 0
+                else:
+                    s.epochs_no_improve += 1
+                    if s.epochs_no_improve >= patience:
+                        s.active = False
+                        print(f"  [{s.id}] early stopping at {phase_label} epoch {epoch} "
+                              f"(best_val_acc={s.best_val_acc:.4f})")
+
+
+def train_student_group(
+    teacher: nn.Module,
+    students: list,
+    save_paths: list[str],
+    ids: list[str],
+    train_loader,
+    val_loader,
+    epochs: int,
+    device: torch.device,
+    encoder_lr:    float = 1e-3,
+    classifier_lr: float = 1e-5,
+    weight_decay:  float = 1e-2,
+    mse_weight:    float = 1.0,
+    ce_weight:     float = 1.0,
+    kd_weight:     float = 0.0,
+    rkd_weight:    float = 0.0,
+    T:             float = 4.0,
+    patience:      int   = 5,
+    eta_min:       float = 1e-6,
+    phase1_epochs: int   = 0,
+    phase1_eta_min: float | None = None,
+) -> list[dict]:
+    """Train all students sharing one frozen teacher.
+
+    The teacher runs **once per batch**; both ``feature_map`` and
+    ``pooled_vector`` are extracted in that single pass and handed to each
+    student according to its ``target_mode``. Students are stepped sequentially
+    within the batch so peak activation memory stays ~one student's graph.
+
+    Two training schemes:
+    - ``phase1_epochs == 0`` (default): single phase of ``epochs`` with the
+      configured loss weights and early stopping.
+    - ``phase1_epochs > 0``: **Phase 1** = ``phase1_epochs`` epochs of MSE only
+      (a fixed warm-up, no early stopping), then **Phase 2** = ``epochs`` epochs
+      with the configured weights and early stopping. Each phase gets a fresh
+      optimizer + cosine schedule (``encoder_lr`` -> phase ``eta_min``); Phase 1
+      anneals to ``phase1_eta_min`` (falls back to ``eta_min`` when None) and
+      Phase 2 to ``eta_min``.
+
+    Returns a list of result dicts (``best_val_acc``, ``val_mse``,
+    ``best_val_loss``) aligned with ``students``.
+    """
+    teacher.to(device).eval()
+    for p in teacher.parameters():
+        p.requires_grad = False
+
+    states: list[_StudentState] = []
+    for student, save_path, sid in zip(students, save_paths, ids):
+        student.to(device)
+        states.append(_StudentState(student, save_path, sid))
+
+    common = dict(
+        states=states, teacher=teacher, train_loader=train_loader,
+        val_loader=val_loader, device=device,
+        encoder_lr=encoder_lr, classifier_lr=classifier_lr,
+        weight_decay=weight_decay, T=T, patience=patience,
+    )
+    p1_eta_min = phase1_eta_min if phase1_eta_min is not None else eta_min
+
+    if phase1_epochs > 0:
+        # Phase 1: MSE-only warm-up (fixed length, no early stopping).
+        _run_phase(
+            phase_label="P1-mse", epochs=phase1_epochs, eta_min=p1_eta_min,
+            early_stop=False,
+            mse_weight=mse_weight, ce_weight=0.0, kd_weight=0.0, rkd_weight=0.0,
+            **common,
+        )
+        # Phase 2: full configured loss, with early stopping.
+        _run_phase(
+            phase_label="P2-full", epochs=epochs, eta_min=eta_min, early_stop=True,
+            mse_weight=mse_weight, ce_weight=ce_weight, kd_weight=kd_weight,
+            rkd_weight=rkd_weight, **common,
+        )
+    else:
+        _run_phase(
+            phase_label="train", epochs=epochs, eta_min=eta_min, early_stop=True,
+            mse_weight=mse_weight, ce_weight=ce_weight, kd_weight=kd_weight,
+            rkd_weight=rkd_weight, **common,
+        )
 
     for s in states:
         print(f"  [{s.id}] best val_acc={s.best_val_acc:.4f} "

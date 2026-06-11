@@ -1,131 +1,174 @@
-"""Single-stage distillation for the teacher-head student (grouped trainer).
+"""Grouped distillation trainer for Phase-2 students.
 
-The student (``student_teacher_head.StudentTeacherHead``) ends in a
-``[teacher_dim, 7, 7]`` conv map; ``project(x)`` global-average-pools it to a
-post-GAP vector, and ``forward(x)`` runs the glued teacher head.
+One teacher forward per batch is shared across every student in the group
+(both pre_gap and post_gap students of the same teacher), avoiding redundant
+teacher passes. ``TeacherModel.extract_features`` returns both targets in a
+single forward so no second pass is ever needed:
 
-Training is end-to-end with a combinable loss::
+    feature_map,   [N, C, 7, 7]  -> pre_gap students
+    pooled_vector, [N, C]         -> post_gap students
 
-    loss = mse_weight * MSE(student.project(x), teacher_post_gap(x))
-         + ce_weight  * CE(student(x), y)
-         + kd_weight  * KD_KL(student(x), teacher(x); T)
+Loss (configurable per run):
+    loss = mse_weight  * MSE(student.project(x), teacher_target)
+         + ce_weight   * CE(student(x), y)
+         + kd_weight   * KL(student(x)/T, teacher(x)/T) * T^2
+         + rkd_weight  * RKD(student_vec, teacher_vec)
 
-By default only the MSE (post-GAP feature distillation) term is active; setting
-``ce_weight`` / ``kd_weight`` > 0 brings the glued head into the loss.
+CE is on by default (ce_weight=1); KD and RKD are off by default.
 
-Grouped training
-----------------
-The teacher is frozen, so its target ``ft`` for a given batch is identical for
-every student that distills from it. :func:`train_student_group` exploits this:
-each batch runs the teacher **once** and reuses the result across all students of
-that teacher (and across the optional KD logits), instead of one teacher forward
-per student. Per-epoch augmentation is preserved -- every student sees the same
-freshly-augmented batch and is matched against the teacher target for that exact
-view. Students are stepped sequentially within a batch (independent optimizers /
-schedulers / early-stopping), so peak activation memory is ~one student's graph.
+RKD (Park et al., CVPR 2019) matches *relations* between samples in the batch
+instead of individual representations: a Huber loss on normalized pairwise
+distances (RKD-D) plus a Huber loss on triplet angles (RKD-A), computed on the
+post-GAP vectors of teacher and student (pre_gap students are pooled first).
+The internal distance:angle ratio is 1:2 as in the paper, so the paper's
+(lambda_d=25, lambda_a=50) corresponds to ``rkd_weight=25``.
 """
+
+from __future__ import annotations
 
 import torch
 from torch import nn
 from torch.nn import functional as F
 
 
-@torch.no_grad()
-def teacher_encode(model: nn.Module, x: torch.Tensor, kind: str) -> torch.Tensor:
-    """Distillation target: the representation the teacher's classifier consumes.
-
-    Post-GAP ``[teacher_dim]`` for ResNet-50; post-GAP **+ LayerNorm** for
-    ConvNeXt-Base (its head normalizes the pooled map before the Linear); and for
-    VGG-16 the flattened ``avgpool(7)`` map (``512*7*7 = 25088``), which is what
-    its classifier actually uses -- not a post-GAP vector.
-
-    ``StudentTeacherHead.pooled_feature`` reproduces this same tail on the
-    student's conv map -- keep the two in sync.
-    """
-    model.eval()
-    if kind == "resnet50":
-        x = model.maxpool(model.relu(model.bn1(model.conv1(x))))
-        x = model.layer4(model.layer3(model.layer2(model.layer1(x))))
-        x = model.avgpool(x)
-    elif kind == "convnext_base":
-        x = model.features(x)
-        x = model.avgpool(x)
-        x = model.classifier[0](x)  # LayerNorm2d: post-GAP feature the student matches
-    elif kind == "vgg16":
-        x = model.features(x)
-        x = model.avgpool(x)  # AdaptiveAvgPool2d(7) -> [512, 7, 7]; classifier consumes the flattened map
-    else:
-        raise ValueError(f"Unknown model kind: {kind}")
-    return torch.flatten(x, 1)
-
+# ---------------------------------------------------------------------------
+# Teacher target extraction (uses Phase-1 TeacherModel.extract_features)
+# ---------------------------------------------------------------------------
 
 @torch.no_grad()
-def teacher_forward(teacher: nn.Module, x: torch.Tensor, kind: str, need_logits: bool):
-    """One teacher pass per batch, shared across every student of that teacher.
+def teacher_forward(
+    teacher: nn.Module,
+    x: torch.Tensor,
+    need_logits: bool,
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor | None]:
+    """Single teacher pass that yields both pre- and post-GAP targets.
 
-    Returns ``(features, logits_or_None)``. ``features`` is the distillation
-    target from :func:`teacher_encode`; ``logits`` is only computed when a KD
-    term needs it (a second teacher pass -- KD is off by default).
+    Returns ``(feature_map, pooled_vector, logits_or_None)``.
+
+    ``feature_map``    -- ``[N, C, 7, 7]``  pre-GAP target.
+    ``pooled_vector``  -- ``[N, C]``         post-GAP target (= GAP(feature_map)).
+    ``logits``         -- teacher logits, only when ``need_logits=True`` (KD).
     """
-    features = teacher_encode(teacher, x, kind)
-    logits = teacher(x) if need_logits else None
-    return features, logits
+    teacher.eval()
+    feature_map, pooled_vector = teacher.extract_features(x)
+    logits = teacher.classifier(pooled_vector) if need_logits else None
+    return feature_map, pooled_vector, logits
 
+
+# ---------------------------------------------------------------------------
+# Relational Knowledge Distillation (Park et al., CVPR 2019)
+# ---------------------------------------------------------------------------
+
+def _pdist(e: torch.Tensor, eps: float = 1e-12) -> torch.Tensor:
+    """Pairwise euclidean distance matrix ``[N, N]`` with a zeroed diagonal."""
+    e_sq = e.pow(2).sum(dim=1)
+    dist = (e_sq.unsqueeze(1) + e_sq.unsqueeze(0) - 2.0 * (e @ e.t())).clamp(min=eps).sqrt()
+    dist = dist.clone()
+    dist[range(len(e)), range(len(e))] = 0.0
+    return dist
+
+
+def rkd_loss(student_vec: torch.Tensor, teacher_vec: torch.Tensor) -> torch.Tensor:
+    """RKD-D (pairwise distances) + 2x RKD-A (triplet angles), both Huber.
+
+    Inputs are ``[N, D]`` post-GAP vectors; teacher relations are targets
+    (no grad). Forced to fp32 — normalized relation matrices are too
+    ill-conditioned for fp16 autocast.
+    """
+    with torch.amp.autocast("cuda", enabled=False):
+        s = student_vec.float()
+        t = teacher_vec.float()
+
+        # RKD-D: distances normalized by their batch mean.
+        with torch.no_grad():
+            td = _pdist(t)
+            td = td / td[td > 0].mean()
+        sd = _pdist(s)
+        sd = sd / sd[sd > 0].mean()
+        loss_d = F.smooth_l1_loss(sd, td)
+
+        # RKD-A: cosine of angles formed by every (i, j, k) triplet.
+        with torch.no_grad():
+            te = F.normalize(t.unsqueeze(0) - t.unsqueeze(1), p=2, dim=2)
+            t_angle = torch.bmm(te, te.transpose(1, 2)).view(-1)
+        se = F.normalize(s.unsqueeze(0) - s.unsqueeze(1), p=2, dim=2)
+        s_angle = torch.bmm(se, se.transpose(1, 2)).view(-1)
+        loss_a = F.smooth_l1_loss(s_angle, t_angle)
+
+    return loss_d + 2.0 * loss_a
+
+
+def _pooled_student_vec(student, fs: torch.Tensor) -> torch.Tensor:
+    """Post-GAP vector of the student's projected representation."""
+    return fs.mean(dim=(2, 3)) if student.target_mode == "pre_gap" else fs
+
+
+# ---------------------------------------------------------------------------
+# Per-student training state
+# ---------------------------------------------------------------------------
 
 class _StudentState:
-    """Per-student training state for grouped (shared-teacher) distillation."""
-
     def __init__(self, student, save_path, sid, optimizer, scheduler):
-        self.student = student
-        self.save_path = save_path
-        self.id = sid
-        self.optimizer = optimizer
-        self.scheduler = scheduler
-        self.scaler = torch.amp.GradScaler("cuda")
-        self.best_val_acc = -1.0
-        self.best_val_mse = float("inf")
-        self.best_val_loss = float("inf")
+        self.student    = student
+        self.save_path  = save_path
+        self.id         = sid
+        self.optimizer  = optimizer
+        self.scheduler  = scheduler
+        self.scaler     = torch.amp.GradScaler("cuda")
+        self.best_val_acc   = -1.0
+        self.best_val_mse   = float("inf")
+        self.best_val_loss  = float("inf")
         self.epochs_no_improve = 0
-        self.active = True
-        self.run_loss = 0.0
+        self.active     = True
+        self.run_loss   = 0.0
         self.train_correct = 0
-        self.n = 0
+        self.n          = 0
 
     def reset_epoch(self):
-        self.run_loss = 0.0
+        self.run_loss      = 0.0
         self.train_correct = 0
-        self.n = 0
+        self.n             = 0
 
+
+# ---------------------------------------------------------------------------
+# Evaluation
+# ---------------------------------------------------------------------------
 
 @torch.no_grad()
-def evaluate_group(teacher, students, loader, kind, device,
-                   mse_weight=1.0, ce_weight=0.0, kd_weight=0.0, T=4.0):
-    """Evaluates several students against one shared teacher in a single pass.
+def evaluate_group(
+    teacher,
+    students: list,
+    loader,
+    device: torch.device,
+    mse_weight: float = 1.0,
+    ce_weight:  float = 1.0,
+    kd_weight:  float = 0.0,
+    rkd_weight: float = 0.0,
+    T: float = 4.0,
+) -> list[tuple[float, float, float]]:
+    """Evaluates all students in one shared-teacher pass.
 
-    Returns a list of ``(val_loss, val_mse, val_acc)`` aligned with ``students``.
-    The teacher target (and optional KD logits) is computed once per batch and
-    reused across all students -- the per-student math matches the original
-    single-student ``evaluate``.
+    Returns ``[(val_loss, val_mse, val_acc)]`` aligned with ``students``.
     """
-    for student in students:
-        student.eval()
+    for s in students:
+        s.eval()
     k = len(students)
     loss_sum = [0.0] * k
-    mse_sum = [0.0] * k
-    correct = [0] * k
+    mse_sum  = [0.0] * k
+    correct  = [0]   * k
     n = 0
     for x, y in loader:
         x = x.to(device, non_blocking=True)
         y = y.to(device, non_blocking=True)
         bs = x.size(0)
         with torch.amp.autocast("cuda", dtype=torch.float16):
-            ft, teacher_logits = teacher_forward(teacher, x, kind, kd_weight > 0)
+            fmap, vec, teacher_logits = teacher_forward(teacher, x, kd_weight > 0)
             for i, student in enumerate(students):
-                fmap = student.encoder(x)
-                fs = student.pooled_feature(fmap)  # mirrors teacher_encode's tail
-                mse = F.mse_loss(fs.float(), ft.float())
-                logits = student.classifier(fmap)
-                loss = mse_weight * mse
+                target = fmap if student.target_mode == "pre_gap" else vec
+                fs     = student.project(x)
+                mse    = F.mse_loss(fs.float(), target.float())
+                logits = student(x)
+                loss   = mse_weight * mse
                 if ce_weight > 0:
                     loss = loss + ce_weight * F.cross_entropy(logits, y)
                 if kd_weight > 0:
@@ -134,60 +177,72 @@ def evaluate_group(teacher, students, loader, kind, device,
                         F.softmax(teacher_logits.float() / T, dim=1),
                         reduction="batchmean",
                     ) * (T * T)
+                if rkd_weight > 0:
+                    loss = loss + rkd_weight * rkd_loss(
+                        _pooled_student_vec(student, fs), vec
+                    )
                 loss_sum[i] += loss.item() * bs
-                mse_sum[i] += mse.item() * bs
-                correct[i] += (logits.argmax(1) == y).sum().item()
+                mse_sum[i]  += mse.item()  * bs
+                correct[i]  += (logits.argmax(1) == y).sum().item()
         n += bs
     return [(loss_sum[i] / n, mse_sum[i] / n, correct[i] / n) for i in range(k)]
 
 
+# ---------------------------------------------------------------------------
+# Training
+# ---------------------------------------------------------------------------
+
 def train_student_group(
     teacher: nn.Module,
-    students: list[nn.Module],
+    students: list,
     save_paths: list[str],
     ids: list[str],
     train_loader,
     val_loader,
-    kind: str,
     epochs: int,
     device: torch.device,
-    encoder_lr: float = 1e-3,
-    classifier_lr: float = 1e-3,
-    weight_decay: float = 1e-2,
-    mse_weight: float = 1.0,
-    ce_weight: float = 0.0,
-    kd_weight: float = 0.0,
-    T: float = 4.0,
-    patience: int = 5,
+    encoder_lr:    float = 1e-3,
+    classifier_lr: float = 1e-5,
+    weight_decay:  float = 1e-2,
+    mse_weight:    float = 1.0,
+    ce_weight:     float = 1.0,
+    kd_weight:     float = 0.0,
+    rkd_weight:    float = 0.0,
+    T:             float = 4.0,
+    patience:      int   = 5,
 ) -> list[dict]:
-    """End-to-end single-stage training of all students sharing one teacher.
+    """Train all students sharing one frozen teacher in a single loop.
 
-    The teacher runs once per batch; every (still-active) student trains against
-    that shared target with its own optimizer/scheduler/early-stopping and saves
-    its own best-by-val_acc checkpoint. Returns a list of result dicts
-    (``best_val_acc``, ``val_mse``, ``best_val_loss``) aligned with ``students``.
+    The teacher runs **once per batch**; both ``feature_map`` and
+    ``pooled_vector`` are extracted in that single pass and handed to each
+    student according to its ``target_mode``.  Students are stepped
+    sequentially within the batch so peak activation memory stays
+    ~one student's graph.
+
+    Returns a list of result dicts (``best_val_acc``, ``val_mse``,
+    ``best_val_loss``) aligned with ``students``.
     """
     teacher.to(device).eval()
-    for param in teacher.parameters():
-        param.requires_grad = False
+    for p in teacher.parameters():
+        p.requires_grad = False
 
-    # Build per-student state: encoder vs. head get separate LRs (matches the
-    # original single-student split), an AdamW + cosine schedule, and a scaler.
     states: list[_StudentState] = []
     for student, save_path, sid in zip(students, save_paths, ids):
         student.to(device)
-        encoder_params = [p for name, p in student.named_parameters()
-                          if "classifier" not in name and p.requires_grad]
-        classifier_params = [p for name, p in student.named_parameters()
-                             if "classifier" in name and p.requires_grad]
-        groups = [{"params": encoder_params, "lr": encoder_lr}]
-        if classifier_params:
-            groups.append({"params": classifier_params, "lr": classifier_lr})
-        optimizer = torch.optim.AdamW(groups, weight_decay=weight_decay)
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-6)
-        states.append(_StudentState(student, save_path, sid, optimizer, scheduler))
+        enc_params  = [p for name, p in student.named_parameters()
+                       if "classifier" not in name and p.requires_grad]
+        head_params = [p for name, p in student.named_parameters()
+                       if "classifier" in name and p.requires_grad]
+        groups = [{"params": enc_params, "lr": encoder_lr}]
+        if head_params:
+            groups.append({"params": head_params, "lr": classifier_lr})
+        opt  = torch.optim.AdamW(groups, weight_decay=weight_decay)
+        sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=epochs, eta_min=1e-6)
+        states.append(_StudentState(student, save_path, sid, opt, sched))
 
-    use_head_loss = ce_weight > 0 or kd_weight > 0
+    need_kd  = kd_weight > 0
+    need_rkd = rkd_weight > 0
+    use_head = ce_weight > 0 or need_kd
 
     for epoch in range(epochs):
         active = [s for s in states if s.active]
@@ -200,66 +255,67 @@ def train_student_group(
         for x, y in train_loader:
             x = x.to(device, non_blocking=True)
             y = y.to(device, non_blocking=True)
-            # One teacher pass for the whole group; reused by every student.
+            # One shared teacher forward for the whole group.
             with torch.amp.autocast("cuda", dtype=torch.float16):
-                ft, teacher_logits = teacher_forward(teacher, x, kind, kd_weight > 0)
+                fmap, vec, teacher_logits = teacher_forward(teacher, x, need_kd)
 
             for s in active:
                 with torch.amp.autocast("cuda", dtype=torch.float16):
-                    # Run the student encoder once; derive both the projected
-                    # (post-GAP) features and the head logits from the same map.
-                    fmap = s.student.encoder(x)
-                    fs = s.student.pooled_feature(fmap)  # mirrors teacher_encode's tail
-                    loss = mse_weight * F.mse_loss(fs.float(), ft.float())
+                    target = fmap if s.student.target_mode == "pre_gap" else vec
+                    fs     = s.student.project(x)
+                    loss   = mse_weight * F.mse_loss(fs.float(), target.float())
 
-                    if use_head_loss:
-                        logits = s.student.classifier(fmap)
+                    if use_head:
+                        logits = s.student(x)
                         if ce_weight > 0:
                             loss = loss + ce_weight * F.cross_entropy(logits, y)
-                        if kd_weight > 0:
+                        if need_kd:
                             loss = loss + kd_weight * F.kl_div(
                                 F.log_softmax(logits.float() / T, dim=1),
                                 F.softmax(teacher_logits.float() / T, dim=1),
                                 reduction="batchmean",
                             ) * (T * T)
                     else:
-                        # MSE-only: logits aren't in the loss, so skip the head's
-                        # autograd graph -- still need them for train_acc.
                         with torch.no_grad():
-                            logits = s.student.classifier(fmap)
+                            logits = s.student(x)
+
+                    if need_rkd:
+                        loss = loss + rkd_weight * rkd_loss(
+                            _pooled_student_vec(s.student, fs), vec
+                        )
 
                 s.optimizer.zero_grad()
                 s.scaler.scale(loss).backward()
                 s.scaler.step(s.optimizer)
                 s.scaler.update()
-                s.run_loss += loss.item() * x.size(0)
+                s.run_loss      += loss.item() * x.size(0)
                 s.train_correct += (logits.argmax(1) == y).sum().item()
-                s.n += x.size(0)
+                s.n             += x.size(0)
 
         for s in active:
             s.scheduler.step()
 
-        # Single shared-teacher pass over the val set for all active students.
         val_results = evaluate_group(
-            teacher, [s.student for s in active], val_loader, kind, device,
-            mse_weight=mse_weight, ce_weight=ce_weight, kd_weight=kd_weight, T=T,
+            teacher, [s.student for s in active], val_loader, device,
+            mse_weight=mse_weight, ce_weight=ce_weight, kd_weight=kd_weight,
+            rkd_weight=rkd_weight, T=T,
         )
         for s, (val_loss, val_mse, val_acc) in zip(active, val_results):
-            train_loss = s.run_loss / s.n
-            train_acc = s.train_correct / s.n
-            enc_lr = s.scheduler.get_last_lr()[0]
-            cls_lr = s.scheduler.get_last_lr()[-1]
-            print(f"  [{s.id}] epoch {epoch:02d} | train_loss {train_loss:.5f} | train_acc {train_acc:.4f} | "
-                  f"val_loss {val_loss:.5f} | val_acc {val_acc:.4f} | "
-                  f"enc_lr {enc_lr:.2e} | cls_lr {cls_lr:.2e}")
+            train_loss = s.run_loss      / s.n
+            train_acc  = s.train_correct / s.n
+            enc_lr     = s.scheduler.get_last_lr()[0]
+            cls_lr     = s.scheduler.get_last_lr()[-1]
+            print(
+                f"  [{s.id}] epoch {epoch:02d} | train_loss {train_loss:.5f} | "
+                f"train_acc {train_acc:.4f} | val_loss {val_loss:.5f} | "
+                f"val_acc {val_acc:.4f} | enc_lr {enc_lr:.2e} | cls_lr {cls_lr:.2e}"
+            )
 
-            # Save on best accuracy; reset patience on improved accuracy OR
-            # improved full validation loss.
-            improved_acc = val_acc > s.best_val_acc
+            improved_acc  = val_acc  > s.best_val_acc
             improved_loss = val_loss < s.best_val_loss
             if improved_acc:
-                s.best_val_acc = val_acc
-                s.best_val_mse = val_mse
+                s.best_val_acc  = val_acc
+                s.best_val_mse  = val_mse
                 torch.save(s.student.state_dict(), s.save_path)
             if improved_loss:
                 s.best_val_loss = val_loss
@@ -273,7 +329,8 @@ def train_student_group(
                           f"(best_val_acc={s.best_val_acc:.4f})")
 
     for s in states:
-        print(f"  [{s.id}] best val_acc = {s.best_val_acc:.4f} (val_mse {s.best_val_mse:.5f}, "
-              f"best val_loss {s.best_val_loss:.5f}) -> {s.save_path}")
+        print(f"  [{s.id}] best val_acc={s.best_val_acc:.4f} "
+              f"(val_mse {s.best_val_mse:.5f}, best_val_loss {s.best_val_loss:.5f}) "
+              f"-> {s.save_path}")
     return [{"best_val_acc": s.best_val_acc, "val_mse": s.best_val_mse,
              "best_val_loss": s.best_val_loss} for s in states]

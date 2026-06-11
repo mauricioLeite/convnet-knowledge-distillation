@@ -82,7 +82,7 @@ DEFAULTS_FT: dict[str, Any] = {
 RUN_OVERRIDES_FT: dict[tuple[str, str], dict[str, Any]] = {
     ("convnext_base", "oxford-pets"):         {"num_epochs": 15},
     # ("convnext_base", "tiny-imagenet-200"): {"num_epochs": 20},
-    ("convnext_base", "flowers-152"):       {"num_epochs": 20, "batch_size": 64},
+    ("convnext_base", "flowers-102"):       {"num_epochs": 20, "batch_size": 64},
     ("resnet50", "oxford-pets"):              {"num_epochs": 20},
     # ("resnet50", "tiny-imagenet-200"):      {"num_epochs": 20},
     ("resnet50", "flowers-102"):            {"num_epochs": 20, "batch_size": 64},

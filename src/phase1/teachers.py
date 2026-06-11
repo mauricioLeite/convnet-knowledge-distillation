@@ -220,3 +220,41 @@ def get_teacher(backbone_name: str, num_classes: int) -> TeacherModel:
     """
     return TeacherModel(backbone_name=backbone_name, num_classes=num_classes)
 
+
+def load_teacher_checkpoint(
+    backbone_name: str,
+    dataset_name: str,
+    num_classes: int,
+    checkpoint_dir: "Path | str",
+    mode: str = "frozen",
+    device: "str | torch.device" = "cpu",
+) -> TeacherModel:
+    """Loads a Phase-1 teacher from a saved checkpoint dict.
+
+    Restores the classifier (and optionally the encoder, for fine-tuned
+    checkpoints) from the dict saved by Phase-1 training.
+
+    Args:
+        backbone_name: One of ``vgg16_bn``, ``resnet50``, ``convnext_base``.
+        dataset_name: Dataset identifier used in the checkpoint filename.
+        num_classes: Number of downstream classes.
+        checkpoint_dir: Root directory that contains ``frozen/`` and
+            ``finetune/`` sub-directories.
+        mode: ``"frozen"`` or ``"finetune"``.
+        device: Device to map the checkpoint to.
+
+    Returns:
+        Fully restored :class:`TeacherModel` on ``device``, encoder frozen.
+    """
+    from pathlib import Path
+
+    ckpt_path = Path(checkpoint_dir) / mode / f"{backbone_name}_{dataset_name}.pth"
+    checkpoint = torch.load(ckpt_path, map_location=device, weights_only=True)
+    model = TeacherModel(backbone_name=backbone_name, num_classes=num_classes).to(device)
+    model.classifier.load_state_dict(checkpoint["classifier_state_dict"])
+    if mode == "finetune":
+        model.encoder.load_state_dict(checkpoint["encoder_state_dict"])
+    model.encoder.requires_grad_(False)
+    model.encoder.eval()
+    return model
+

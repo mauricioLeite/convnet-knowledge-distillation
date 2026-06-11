@@ -1,29 +1,43 @@
-"""Generates the student backbones for the teacher-head pipeline.
+"""Generates the student backbone configs for Phase-2 distillation.
 
-6 architectures of increasing size x 3 teachers (teacher_dim 2048 -> resnet,
-1024 -> convnext, 512 -> vgg), num_classes=37.
+6 architectures x 3 teachers x 2 target modes x N datasets.
 
-Structure (no dropout -- that lives in the imported teacher head):
-- Small archs (1-3): plain ``Conv3x3 -> BN -> GELU`` stages (+ MaxPool on the stem).
-- Large archs (4-6): a conv stem followed by ``ResidualBlock`` stages (skip
-  connections) for better gradient flow / accuracy. The widest block of the
-  largest arch uses grouped convs (``groups=2``) to halve its params and stay
-  within budget.
-- Every backbone ends with a 1x1 conv projecting to ``teacher_dim`` (a cheap
-  per-pixel linear) so the teacher head attaches directly. The GAP and the glued
-  head live in the model, not in the JSON.
+Output: one JSON file per dataset under ``src/phase2/``, e.g.
+    students_oxford-pets.json
+    students_flowers-102.json
 
-Hard constraint: the **encoder** (everything but the imported head) must stay
-under 3M params; the generator asserts this.
+Structure:
+- Small archs (1-3): plain Conv3x3→BN→GELU stages (+ MaxPool on the stem).
+- Large archs (4-6): conv stem + ResidualBlock stages for better gradient flow.
+  The widest block uses grouped convs (groups=2) to stay within the 3M budget.
+- Every backbone ends with a plain conv encoder; the predictor (GAP+dense Linear
+  for post_gap, or pool7+1x1conv for pre_gap) is built at runtime by Student
+  and is NOT in the JSON.
+
+Hard constraint: encoder params < 3 M (asserted by the generator).
+Conv-count rule: 3x3 / 7x7 convs only; 1x1 and shortcut 1x1 do not count.
+  A ResidualBlock contributes 2 (its two 3x3 convs).
 """
 
+from __future__ import annotations
+
+import argparse
 import json
 from pathlib import Path
 
-NUM_CLASSES = 37
+PARAM_BUDGET = 3_000_000
 TEACHERS = [("resnet", 2048), ("convnext", 1024), ("vgg", 512)]
-PARAM_BUDGET = 3_000_000  # encoder-only hard cap
+TARGET_MODES = ["pre_gap", "post_gap"]
 
+DATASETS: dict[str, int] = {
+    "oxford-pets":  37,
+    "flowers-102": 102,
+}
+
+
+# ---------------------------------------------------------------------------
+# Architecture definitions (encoder stages only — no predictor or head)
+# ---------------------------------------------------------------------------
 
 def conv(cin, cout, k, s, p, maxpool=None):
     block = [
@@ -42,14 +56,7 @@ def res(cin, cout, stride=1, groups=1):
              "stride": stride, "groups": groups}]
 
 
-# Each arch is a list of stages (each stage = list of attribute dicts). The
-# final 1x1 projection to teacher_dim is appended per-teacher in build_layers.
-#
-# Conv-count rule (hard, <= 6): a 1x1 conv does NOT count (it is a linear
-# projection); every 3x3/7x7 conv counts, including each internal conv of a
-# ResidualBlock (2). Shortcut 1x1 and the final 1x1 projection do not count.
-# Counts below: 3, 3, 4, 4, 5, 6.
-ARCHS = {
+ARCHS: dict[str, list] = {
     "arch1_3conv_narrow": [          # 3 convs
         conv(3, 16, 7, 2, 3, (3, 2, 1)),
         conv(16, 32, 3, 2, 1),
@@ -75,16 +82,20 @@ ARCHS = {
         res(64, 128, stride=2),
         res(128, 256, stride=2),
     ],
-    "arch6_6conv_res": [             # Stem (1) + 2 ResBlocks (4) + 1 Conv (1) = 6 convs
-        conv(3, 64, 7, 2, 3, (3, 2, 1)), 
+    "arch6_6conv_res": [             # stem(1) + 2 ResBlocks(4) + conv(1) = 6 convs
+        conv(3, 64, 7, 2, 3, (3, 2, 1)),
         res(64, 128, stride=2),
         res(128, 256, stride=2),
-        conv(256, 256, 3, 1, 1),         # Adiciona capacidade no final
+        conv(256, 256, 3, 1, 1),
     ],
 }
 
 
-def _stage_out_channels(stage):
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _stage_out_channels(stage: list[dict]) -> int | None:
     out = None
     for a in stage:
         if a["type"] in ("conv2d", "residual_block"):
@@ -92,36 +103,30 @@ def _stage_out_channels(stage):
     return out
 
 
-def build_layers(stages, teacher_dim):
-    layers = [{f"layer{i}": stage} for i, stage in enumerate(stages, start=1)]
-    c_last = _stage_out_channels(stages[-1])
-    layers.append({"proj1x1": conv(c_last, teacher_dim, 1, 1, 0)})
-    return layers
+def build_layers(stages: list[list[dict]]) -> list[dict]:
+    """Wraps each stage in a named block dict (layer1, layer2, …)."""
+    return [{f"layer{i}": stage} for i, stage in enumerate(stages, start=1)]
 
 
-def _attr_params(a):
+def _attr_params(a: dict) -> int:
     if a["type"] == "conv2d":
         g = a.get("groups", 1)
-        return a["in_channels"] * a["out_channels"] * a["kernel_size"] ** 2 // g + 2 * a["out_channels"]
+        return (a["in_channels"] * a["out_channels"] * a["kernel_size"] ** 2 // g
+                + 2 * a["out_channels"])
     if a["type"] == "residual_block":
         cin, cout, g = a["in_channels"], a["out_channels"], a.get("groups", 1)
-        p = cin * cout * 9 // g + cout * cout * 9 // g      # conv1 + conv2 (3x3)
-        p += 4 * cout                                       # bn1 + bn2
+        p = cin * cout * 9 // g + cout * cout * 9 // g + 4 * cout
         if a.get("stride", 1) != 1 or cin != cout:
-            p += cin * cout + 2 * cout                      # 1x1 shortcut + bn
+            p += cin * cout + 2 * cout
         return p
     return 0
 
 
-def encoder_params(layers):
+def encoder_params(layers: list[dict]) -> int:
     return sum(_attr_params(a) for block in layers for stage in block.values() for a in stage)
 
 
-def n_conv_layers(stages):
-    """Counts convs toward the <=6 rule: 3x3/7x7 only (1x1 is linear, free).
-
-    A ResidualBlock contributes its two 3x3 convs (2); its 1x1 shortcut does not.
-    """
+def n_conv_layers(stages: list[list[dict]]) -> int:
     total = 0
     for stage in stages:
         for a in stage:
@@ -132,28 +137,59 @@ def n_conv_layers(stages):
     return total
 
 
-students = []
-for arch_name, stages in ARCHS.items():
-    for teacher, teacher_dim in TEACHERS:
-        layers = build_layers(stages, teacher_dim)
-        params = encoder_params(layers)
-        if params > PARAM_BUDGET:
-            raise ValueError(
-                f"{arch_name}/{teacher}: encoder has {params:,} params > {PARAM_BUDGET:,} budget."
-            )
-        students.append({
-            "id": f"{arch_name}__{teacher}_td{teacher_dim}",
-            "arch": arch_name,
-            "teacher": teacher,
-            "teacher_dim": teacher_dim,
-            "num_classes": NUM_CLASSES,
-            "n_convs": n_conv_layers(stages),
-            "encoder_params": params,
-            "layers": layers,
-        })
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
 
-out = Path(__file__).with_name("students.json")
-out.write_text(json.dumps(students, indent=2), encoding="utf-8")
-print(f"Wrote {len(students)} configs ({len(ARCHS)} archs x {len(TEACHERS)} teachers) -> {out}")
-for s in students:
-    print(f"  {s['id']:38s} conv_layers={s['n_convs']} encoder={s['encoder_params']/1e6:.2f}M")
+def generate(dataset_name: str, num_classes: int, out_dir: Path) -> list[dict]:
+    students = []
+    for arch_name, stages in ARCHS.items():
+        for teacher, teacher_dim in TEACHERS:
+            layers = build_layers(stages)
+            params = encoder_params(layers)
+            if params > PARAM_BUDGET:
+                raise ValueError(
+                    f"{arch_name}/{teacher}: encoder has {params:,} params > {PARAM_BUDGET:,}."
+                )
+            last_ch = _stage_out_channels(stages[-1])
+            for mode in TARGET_MODES:
+                students.append({
+                    "id":           f"{arch_name}__{teacher}_td{teacher_dim}_{mode}",
+                    "arch":         arch_name,
+                    "teacher":      teacher,
+                    "teacher_dim":  teacher_dim,
+                    "num_classes":  num_classes,
+                    "target_mode":  mode,
+                    "n_convs":      n_conv_layers(stages),
+                    "last_enc_channels": last_ch,
+                    "encoder_params":    params,
+                    "layers":       layers,
+                })
+    out_path = out_dir / f"students_{dataset_name}.json"
+    out_path.write_text(json.dumps(students, indent=2), encoding="utf-8")
+    print(f"[{dataset_name}] Wrote {len(students)} configs "
+          f"({len(ARCHS)} archs × {len(TEACHERS)} teachers × {len(TARGET_MODES)} modes) "
+          f"→ {out_path}")
+    for s in students[:6]:  # print a sample
+        print(f"  {s['id']:55s} convs={s['n_convs']} enc={s['encoder_params']/1e6:.2f}M "
+              f"mode={s['target_mode']}")
+    print("  ...")
+    return students
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--datasets", nargs="+",
+        default=list(DATASETS.keys()),
+        choices=list(DATASETS.keys()),
+        help="Which dataset JSONs to generate (default: all).",
+    )
+    args = parser.parse_args()
+    out_dir = Path(__file__).resolve().parent
+    for ds in args.datasets:
+        generate(ds, DATASETS[ds], out_dir)
+
+
+if __name__ == "__main__":
+    main()

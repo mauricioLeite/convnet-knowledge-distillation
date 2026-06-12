@@ -4,7 +4,6 @@ SERVICE   = kd-lab
 CONTAINER = mo434-kd
 IMAGE     = mo434-kd:latest
 JUPYTER   = http://localhost:8888
-COMPOSE   = docker compose -f .devcontainer/docker-compose.yml
 
 .PHONY: help build up down restart logs shell gpu cuda-check status open clean rebuild purge
 
@@ -29,28 +28,28 @@ help:
 
 # Core
 build:
-	$(COMPOSE) build
+	docker compose build
 
 up:
-	$(COMPOSE) up -d
+	docker compose up -d
 	@echo "JupyterLab running at $(JUPYTER)"
 
 down:
-	$(COMPOSE) down
+	docker compose down
 
 restart:
-	$(COMPOSE) restart $(SERVICE)
+	docker compose restart $(SERVICE)
 
 logs:
-	$(COMPOSE) logs -f $(SERVICE)
+	docker compose logs -f $(SERVICE)
 
 status:
-	$(COMPOSE) ps
+	docker compose ps
 
 sh:
 	docker exec -it $(CONTAINER) bash
 
-# GPU
+# GPU 
 gpu:
 	docker exec -it $(CONTAINER) nvidia-smi
 
@@ -64,12 +63,12 @@ open:
 	@echo "JupyterLab → $(JUPYTER)"
 
 clean:
-	$(COMPOSE) down -v --remove-orphans
+	docker compose down -v --remove-orphans
 
 rebuild:
-	$(COMPOSE) down
-	$(COMPOSE) build --no-cache
-	$(COMPOSE) up -d
+	docker compose down
+	docker compose build --no-cache
+	docker compose up -d
 	@echo "Rebuilt and running at $(JUPYTER)"
 
 purge: clean

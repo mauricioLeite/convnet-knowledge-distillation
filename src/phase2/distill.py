@@ -68,35 +68,69 @@ def _pdist(e: torch.Tensor, eps: float = 1e-12) -> torch.Tensor:
     return dist
 
 
-def rkd_loss(student_vec: torch.Tensor, teacher_vec: torch.Tensor) -> torch.Tensor:
-    """RKD-D (pairwise distances) + 2x RKD-A (triplet angles), both Huber.
-
-    Inputs are ``[N, D]`` post-GAP vectors; teacher relations are targets
-    (no grad). Forced to fp32 — normalized relation matrices are too
-    ill-conditioned for fp16 autocast.
+def nrkd_loss(student_vec: torch.Tensor, teacher_vec: torch.Tensor, k: int = 8) -> torch.Tensor:
+    """NRKD-D (distâncias locais) + 2x NRKD-A (ângulos locais), usando Huber.
+    
+    Aplica a destilação relacional APENAS nos K-vizinhos mais próximos 
+    (definidos pelo espaço latente do professor), reduzindo ruído de amostras
+    distantes no batch.
     """
     with torch.amp.autocast("cuda", enabled=False):
         s = student_vec.float()
         t = teacher_vec.float()
+        N = t.size(0)
 
-        # RKD-D: distances normalized by their batch mean.
+        # 1. Definir a vizinhança usando o Professor
         with torch.no_grad():
             td = _pdist(t)
-            td = td / td[td > 0].mean()
-        sd = _pdist(s)
-        sd = sd / sd[sd > 0].mean()
-        loss_d = F.smooth_l1_loss(sd, td)
+            # Zera a diagonal (distância para si mesmo) com infinito para não ser escolhida
+            td_masked = td.clone()
+            td_masked[range(N), range(N)] = float('inf')
+            
+            # Garante que K não seja maior que o batch_size (útil no último batch da época)
+            actual_k = min(k, N - 1)
+            if actual_k <= 0:
+                return torch.tensor(0.0, device=student_vec.device)
+                
+            # Encontra os índices dos Top-K vizinhos mais próximos
+            _, topk_idx = td_masked.topk(actual_k, dim=1, largest=False)
+            
+            # Cria a máscara booleana [N, N] onde True = é vizinho
+            mask = torch.zeros_like(td, dtype=torch.bool)
+            mask.scatter_(1, topk_idx, True)
+            
+            # RKD-D: Extrai e normaliza apenas as distâncias locais do professor
+            td_k = td[mask]
+            td_k = td_k / (td_k.mean() + 1e-8)
 
-        # RKD-A: cosine of angles formed by every (i, j, k) triplet.
+        # RKD-D: Extrai e normaliza as distâncias correspondentes no aluno
+        sd = _pdist(s)
+        sd_k = sd[mask]
+        sd_k = sd_k / (sd_k.mean() + 1e-8)
+        
+        loss_d = F.smooth_l1_loss(sd_k, td_k)
+
+        # 2. RKD-A (Ângulos) focados na vizinhança
         with torch.no_grad():
             te = F.normalize(t.unsqueeze(0) - t.unsqueeze(1), p=2, dim=2)
-            t_angle = torch.bmm(te, te.transpose(1, 2)).view(-1)
+            t_angle = torch.bmm(te, te.transpose(1, 2)) # [N, N, N]
+            
         se = F.normalize(s.unsqueeze(0) - s.unsqueeze(1), p=2, dim=2)
-        s_angle = torch.bmm(se, se.transpose(1, 2)).view(-1)
-        loss_a = F.smooth_l1_loss(s_angle, t_angle)
+        s_angle = torch.bmm(se, se.transpose(1, 2)) # [N, N, N]
+        
+        # Máscara 3D [N, N, N]: o ângulo entre (i, j, k) só importa se j e k forem vizinhos de i
+        mask_3d = mask.unsqueeze(2) & mask.unsqueeze(1)
+        
+        # Removemos a diagonal onde j == k (ângulo de um vetor com ele mesmo)
+        diag_idx = torch.arange(N)
+        mask_3d[:, diag_idx, diag_idx] = False
+        
+        t_angle_k = t_angle[mask_3d]
+        s_angle_k = s_angle[mask_3d]
+        
+        loss_a = F.smooth_l1_loss(s_angle_k, t_angle_k)
 
     return loss_d + 2.0 * loss_a
-
 
 def _pooled_student_vec(student, fs: torch.Tensor) -> torch.Tensor:
     """Post-GAP vector of the student's projected representation."""
@@ -182,7 +216,7 @@ def evaluate_group(
                         reduction="batchmean",
                     ) * (T * T)
                 if rkd_weight > 0:
-                    loss = loss + rkd_weight * rkd_loss(
+                    loss = loss + rkd_weight * nrkd_loss(
                         _pooled_student_vec(student, fs), vec
                     )
                 loss_sum[i] += loss.item() * bs
@@ -280,7 +314,7 @@ def _run_phase(
                             logits = s.student(x)
 
                     if need_rkd:
-                        loss = loss + rkd_weight * rkd_loss(
+                        loss = loss + rkd_weight * nrkd_loss(
                             _pooled_student_vec(s.student, fs), vec
                         )
 

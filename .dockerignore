@@ -1,11 +1,7 @@
-__pycache__
-*.pyc
-.git
-outputs/
-data/
-.venv
-.env
-*.tar
-*.gz
-*.md
-.ipynb_checkpoints
+# Docker build context is the repo root (.devcontainer/docker-compose.yml uses
+# `context: ..`). The image only needs the dependency manifests at build time;
+# source, data, checkpoints (*.pth) and the venv are bind-mounted into
+# /workspace at runtime. Ship only the manifests to keep the context tiny.
+*
+!pyproject.toml
+!uv.lock

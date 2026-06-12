@@ -1,8 +1,9 @@
 services:
   kd-lab:
     build:
-      context: .
-      dockerfile: Dockerfile
+      # Root context so the Dockerfile can COPY pyproject.toml / uv.lock.
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
     image: mo434-kd:latest
     container_name: mo434-kd
     # GPU access (requires nvidia-container-toolkit on host)
@@ -16,12 +17,10 @@ services:
     ports:
       - "8888:8888"
     volumes:
-      - ./src:/workspace/src
-      - ./notebooks:/workspace/notebooks
-      - ./outputs:/workspace/outputs
-      - ./data:/workspace/data
-      - ./checkpoints:/workspace/checkpoints
-      - ./results:/workspace/results
+      # Mount the whole project root (compose file lives in .devcontainer/, so
+      # `..` is the repo root). Exposes src/notebooks/outputs/data + the
+      # *_pets.pth checkpoints and pyproject the training reads.
+      - ..:/workspace
       - model-cache:/root/.cache
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
@@ -37,7 +36,7 @@ services:
       - bash
       - -lc
       - |
-        python - <<'PY'
+        /opt/venv/bin/python - <<'PY'
         import torch
         bar = '=' * 60
         print(bar)
@@ -47,7 +46,7 @@ services:
         print('GPU     :', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU only')
         print(bar)
         PY
-        exec jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --notebook-dir=/workspace
+        exec /opt/venv/bin/jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --notebook-dir=/workspace
 
 volumes:
   model-cache:

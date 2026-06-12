@@ -39,4 +39,16 @@ run src/phase2/train_students.py \
   --kd-weight 0.8 \
   --ce-weight 0.1
 
+#6) single stage ce+kd+rkd with clasifier unfrozen and higher KD weight 
+run src/phase2/train_students.py \
+  --no-freeze-classifier \
+  --epochs 40 \
+  --encoder-lr 1e-3 \
+  --rkd-weight 25 \
+  --classifier-lr 1e-5 \
+  --eta-min 1e-6 \
+  --mse-weight 0 \
+  --ce-weight 1 \
+  --kd-weight 2 \
+
 echo "ALL ABLATION RUNS DONE"

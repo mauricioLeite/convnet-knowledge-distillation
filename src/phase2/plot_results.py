@@ -61,15 +61,25 @@ DPI = 150
 # ---------------------------------------------------------------------------
 
 def load_student_data() -> pd.DataFrame:
+    global DATASETS
     rows = []
+    present = []
     for ds in DATASETS:
         path = STUDENTS_DIR / ds / "test_results.json"
         if not path.exists():
-            raise FileNotFoundError(f"Missing: {path}\nRun test_students.py first.")
+            print(f"  [WARN] missing {path} — skipping {ds}")
+            continue
+        present.append(ds)
         for r in json.loads(path.read_text()):
             r["dataset"] = ds
             r["arch"] = r["id"].split("__")[0]
             rows.append(r)
+    if not present:
+        raise FileNotFoundError(
+            f"No test_results.json found under {STUDENTS_DIR}\nRun test_students.py first."
+        )
+    # Restrict the rest of the pipeline to the datasets we actually have.
+    DATASETS = present
     df = pd.DataFrame(rows)
     return df
 
@@ -94,7 +104,9 @@ def load_teacher_accs() -> dict[tuple[str, str], float]:
 # ---------------------------------------------------------------------------
 
 def plot_q2_delta(df: pd.DataFrame) -> None:
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4.5), sharey=False)
+    fig, axes = plt.subplots(1, len(DATASETS), figsize=(6 * len(DATASETS), 4.5),
+                             sharey=False, squeeze=False)
+    axes = axes[0]
 
     for ax, ds in zip(axes, DATASETS):
         sub = df[df["dataset"] == ds]
@@ -139,7 +151,9 @@ def plot_q1_teacher(df: pd.DataFrame, teacher_accs: dict) -> None:
     n_teachers = len(teachers)
     n_datasets = len(DATASETS)
 
-    fig, axes = plt.subplots(1, n_datasets, figsize=(10, 4.5), sharey=False)
+    fig, axes = plt.subplots(1, n_datasets, figsize=(5 * n_datasets, 4.5),
+                             sharey=False, squeeze=False)
+    axes = axes[0]
 
     bar_width = 0.35
     x = np.arange(n_teachers)
@@ -196,7 +210,9 @@ def plot_q1_teacher(df: pd.DataFrame, teacher_accs: dict) -> None:
 # ---------------------------------------------------------------------------
 
 def plot_acc_vs_params(df: pd.DataFrame) -> None:
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4.5), sharey=False)
+    fig, axes = plt.subplots(1, len(DATASETS), figsize=(6 * len(DATASETS), 4.5),
+                             sharey=False, squeeze=False)
+    axes = axes[0]
 
     for ax, ds in zip(axes, DATASETS):
         sub = df[df["dataset"] == ds]
@@ -246,7 +262,9 @@ def plot_acc_vs_gflops(df: pd.DataFrame) -> None:
             col = "GFLOPs" if "GFLOPs" in tdf.columns else "GFLOPS"
             teacher_gflops[tk] = float(row[col].iloc[0])
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4.5), sharey=False)
+    fig, axes = plt.subplots(1, len(DATASETS), figsize=(6 * len(DATASETS), 4.5),
+                             sharey=False, squeeze=False)
+    axes = axes[0]
     for ax, ds in zip(axes, DATASETS):
         sub = df[df["dataset"] == ds]
         for mode, mcolor in MODE_COLORS.items():

@@ -24,5 +24,19 @@ run mse_ce_kd     --mse-weight 1 --ce-weight 1 --kd-weight 1 --T 4
 run ce_kd         --mse-weight 0 --ce-weight 1 --kd-weight 1 --T 4
 # 4) feature + CE + Relational KD (paper-standard weight)
 run mse_ce_rkd    --mse-weight 1 --ce-weight 1 --rkd-weight 25
+#5) feature + CE + Relational KD splitted in 2 stages: 1st stage with MSE only, 2nd stage with MSE + 0.1*CE + 0.8*KD
+#   - 1st stage: mse-only for 15 epochs with higher lr and eta-min to speed up convergence
+#   - 2nd stage: mse+ce+kd for 30 epochs with lower lr and classifier unfrozen to allow better CE+KD convergence
+uv run src/phase2/train_students.py \
+    --no-freeze-classifier \
+    --phase1-epochs 15 \
+    --phase1-eta-min 1e-4 \
+    --epochs 30 \
+    --encoder-lr 1e-3 \
+    --classifier-lr 1e-5 \
+    --eta-min 1e-6 \
+    --mse-weight 1 \
+    --kd-weight 0.8 \
+    --ce-weight 0.1
 
 echo "ALL ABLATION RUNS DONE"

@@ -143,7 +143,10 @@ def _run_dataset(
         if sid not in trained:
             print(f"  [SKIP] {sid} — not in training summary")
             continue
-        weight_path = Path(trained[sid]["weights"])
+        # Resolve weights relative to weights_dir by id, rather than trusting
+        # the absolute path stored in summary.json (which is OS-specific and
+        # breaks when the summary was generated on another machine).
+        weight_path = weights_dir / f"{sid}.pth"
         if not weight_path.exists():
             print(f"  [SKIP] {sid} — weights not found at {weight_path}")
             continue

@@ -25,6 +25,7 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import random
 import sys
 from fnmatch import fnmatch
 from pathlib import Path
@@ -96,10 +97,13 @@ def _overlay(axis, image_hwc: np.ndarray, activation: np.ndarray, title: str) ->
 
 
 def _pick_image(loader, index: int) -> torch.Tensor:
-    for i, (image, _) in enumerate(loader):
-        if i == index:
-            return image
-    raise IndexError(f"--image-index {index} out of range for this test split.")
+    dataset = loader.dataset
+    if not 0 <= index < len(dataset):
+        raise IndexError(
+            f"image index {index} out of range for this test split (n={len(dataset)})."
+        )
+    image, _ = dataset[index]
+    return image.unsqueeze(0)
 
 
 # ── per-dataset render ─────────────────────────────────────────────────────────
@@ -168,7 +172,15 @@ def render_dataset(dataset: str, args: argparse.Namespace, device: torch.device)
         dataset_name=dataset, data_root=DATA_ROOT,
         batch_size=1, num_workers=args.num_workers,
     )
-    image = _pick_image(test_loader, args.image_index)
+    n_images = len(test_loader.dataset)
+    if args.image_index is not None:
+        idx = args.image_index
+    else:
+        # Independent RNG so the pick is random across runs regardless of the
+        # global set_seed above (pass --seed to make it reproducible).
+        idx = random.Random(args.seed).randrange(n_images)
+    print(f"  image index: {idx} / {n_images}")
+    image = _pick_image(test_loader, idx)
     image_hwc = unnormalize(image[0])
     size = image.shape[-2:]
 
@@ -273,8 +285,10 @@ def parse_args() -> argparse.Namespace:
                    help="Explicit student JSON path (overrides auto-resolution).")
     p.add_argument("--ids", nargs="*", default=None,
                    help="fnmatch pattern(s) on student ids to include.")
-    p.add_argument("--image-index", type=int, default=0,
-                   help="Which test image to visualize (default: first).")
+    p.add_argument("--image-index", type=int, default=None,
+                   help="Pin a specific test image. Default: a random image each run.")
+    p.add_argument("--seed", type=int, default=None,
+                   help="Seed for the random image pick (reproducible random).")
     p.add_argument("--num-workers", type=int, default=4)
     p.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     return p.parse_args()

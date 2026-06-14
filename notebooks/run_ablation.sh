@@ -27,7 +27,7 @@ run mse_ce_rkd    --mse-weight 1 --ce-weight 1 --rkd-weight 25
 #5) feature + CE + KD splitted in 2 stages: 1st stage with MSE only, 2nd stage with MSE + 0.1*CE + 0.8*KD
 #   - 1st stage: mse-only for 15 epochs with higher lr and eta-min to speed up convergence
 #   - 2nd stage: mse+ce+kd for 30 epochs with lower lr and classifier unfrozen to allow better CE+KD convergence
-run src/phase2/train_students.py \
+run mse_ce_kd_2stage-pets src/phase2/train_students.py \
   --datasets oxford-pets \
   --no-freeze-classifier \
   --phase1-epochs 15 \
@@ -40,7 +40,7 @@ run src/phase2/train_students.py \
   --kd-weight 0.8 \
   --ce-weight 0.1
 
-run src/phase2/train_students.py \
+run mse_ce_kd_2stage-flowers src/phase2/train_students.py \
   --datasets flowers-102 \
   --no-freeze-classifier \
   --phase1-epochs 20 \
@@ -56,7 +56,7 @@ run src/phase2/train_students.py \
   --num-workers 4
 
 #6) single stage ce+kd+rkd with clasifier unfrozen and higher KD weight 
-run src/phase2/train_students.py \
+run ce_kd_rkd_1stage src/phase2/train_students.py \
   --datasets flowers-102 \
   --no-freeze-classifier \
   --phase1-epochs 0 \

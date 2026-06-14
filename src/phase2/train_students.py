@@ -107,7 +107,7 @@ def parse_args() -> argparse.Namespace:
     # Hyperparams — all default to None so they only override when explicitly passed.
     p.add_argument("--epochs",        type=int,   default=None)
     p.add_argument("--batch-size",    type=int,   default=None)
-    p.add_argument("--num-workers",   type=int,   default=6)
+    p.add_argument("--num-workers",   type=int,   default=4)
     p.add_argument("--encoder-lr",    type=float, default=None)
     p.add_argument("--classifier-lr", type=float, default=None)
     p.add_argument("--weight-decay",  type=float, default=None)

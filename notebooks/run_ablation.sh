@@ -28,6 +28,7 @@ run mse_ce_rkd    --mse-weight 1 --ce-weight 1 --rkd-weight 25
 #   - 1st stage: mse-only for 15 epochs with higher lr and eta-min to speed up convergence
 #   - 2nd stage: mse+ce+kd for 30 epochs with lower lr and classifier unfrozen to allow better CE+KD convergence
 run src/phase2/train_students.py \
+  --datasets oxford-pets \
   --no-freeze-classifier \
   --phase1-epochs 15 \
   --phase1-eta-min 1e-4 \
@@ -39,16 +40,36 @@ run src/phase2/train_students.py \
   --kd-weight 0.8 \
   --ce-weight 0.1
 
-#6) single stage ce+kd+rkd with clasifier unfrozen and higher KD weight 
 run src/phase2/train_students.py \
+  --datasets flowers-102 \
   --no-freeze-classifier \
+  --phase1-epochs 20 \
   --epochs 40 \
   --encoder-lr 1e-3 \
-  --rkd-weight 25 \
   --classifier-lr 1e-5 \
   --eta-min 1e-6 \
-  --mse-weight 0 \
-  --ce-weight 1 \
-  --kd-weight 2 \
+  --mse-weight 1.0 \
+  --ce-weight 1.0 \
+  --kd-weight 0.5 \
+  --weight-decay 5e-2 \
+  --T 2.5 \
+  --num-workers 4
+
+#6) single stage ce+kd+rkd with clasifier unfrozen and higher KD weight 
+run src/phase2/train_students.py \
+  --datasets flowers-102 \
+  --no-freeze-classifier \
+  --phase1-epochs 0 \
+  --epochs 60 \
+  --encoder-lr 5e-4 \
+  --classifier-lr 1e-6 \
+  --eta-min 1e-6 \
+  --mse-weight 1.0 \
+  --ce-weight 0.5 \
+  --kd-weight 1.0 \
+  --rkd-weight 10.0 \
+  --T 2.5 \
+  --weight-decay 5e-2 \
+  --num-workers 4
 
 echo "ALL ABLATION RUNS DONE"

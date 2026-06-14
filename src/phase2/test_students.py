@@ -72,7 +72,7 @@ def parse_args() -> argparse.Namespace:
                         "outputs/students/<dataset>/ablation_<tag>/ and suffix "
                         "the result CSVs with __<tag>.")
     p.add_argument("--batch-size",  type=int, default=128)
-    p.add_argument("--num-workers", type=int, default=6)
+    p.add_argument("--num-workers", type=int, default=4)
     p.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     return p.parse_args()
 

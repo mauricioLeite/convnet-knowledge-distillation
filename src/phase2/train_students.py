@@ -1,17 +1,3 @@
-"""Phase-2 distillation orchestrator.
-
-Edit the config block below to choose which teachers, datasets, and
-checkpoint modes to use, then just run the script:
-
-    uv run src/phase2/train_students.py
-    uv run src/phase2/train_students.py --teachers resnet --datasets oxford-pets
-    uv run src/phase2/train_students.py --epochs 5 --start-at 7
-
-Hyperparameter precedence (lowest → highest):
-    DEFAULTS  →  RUN_OVERRIDES[(teacher, dataset)]  →  CLI flags
-CLI flags only win when explicitly passed (they default to None).
-"""
-
 from __future__ import annotations
 
 import argparse
@@ -29,39 +15,33 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.phase1.teachers import load_teacher_checkpoint
-from src.phase1.utils import count_parameters, get_dataloaders, set_seed
+from src.common.utils import count_parameters, get_dataloaders, set_seed
 from src.phase2.distill import train_student_group
 from src.phase2.student import Student
 
-# ── paths ────────────────────────────────────────────────────────────────────
-SEED        = 291652
-DATA_ROOT   = PROJECT_ROOT / "data"
-CKPT_DIR    = PROJECT_ROOT / "outputs" / "checkpoints" / "teachers"
+SEED = 291652
+DATA_ROOT = PROJECT_ROOT / "data"
+CKPT_DIR = PROJECT_ROOT / "outputs" / "checkpoints" / "teachers"
 WEIGHTS_DIR = PROJECT_ROOT / "outputs" / "students"
 
-# Map JSON teacher key -> backbone name understood by TeacherModel
 _BACKBONE = {
     "resnet":   "resnet50",
     "convnext": "convnext_base",
     "vgg":      "vgg16_bn",
 }
 
-# ── what to run ───────────────────────────────────────────────────────────────
-TEACHERS = ["resnet", "convnext", "vgg"]
-DATASETS = ["oxford-pets", "flowers-102"]
+TEACHERS = ["vgg"]
+DATASETS = ["oxford-pets", "flowers-102", "tiny-imagenet-200"]
 
-# Per-teacher Phase-1 checkpoint mode.
-# VGG has no finetune checkpoint — must stay "frozen".
 CKPT_MODE: dict[str, str] = {
     "resnet":   "finetune",
     "convnext": "finetune",
     "vgg":      "frozen",
 }
 
-# ── default hyperparameters ───────────────────────────────────────────────────
 DEFAULTS: dict[str, Any] = {
     "epochs":        30,
-    "batch_size":    128,
+    "batch_size":    64,
     "encoder_lr":    1e-3,
     "classifier_lr": 1e-5,
     "weight_decay":  1e-2,
@@ -71,20 +51,17 @@ DEFAULTS: dict[str, Any] = {
     "rkd_weight":    0.0,
     "T":             4.0,
     "patience":      5,
-    "eta_min":       1e-6,    # phase-2 (or single-phase) cosine floor
-    "phase1_epochs": 0,       # 0 = single-phase; >0 = MSE-only warm-up then full loss
-    "phase1_eta_min": None,   # phase-1 cosine floor; None -> same as eta_min
+    "eta_min":       1e-6,
+    "phase1_epochs": 0,
+    "phase1_eta_min": None,
 }
 
-# ── per-(teacher, dataset) overrides ─────────────────────────────────────────
 RUN_OVERRIDES: dict[tuple[str, str], dict[str, Any]] = {
-    ("convnext", "flowers-102"): {"epochs": 40, "batch_size": 64},
-    ("resnet",   "flowers-102"): {"epochs": 40, "batch_size": 64},
-    ("vgg",      "flowers-102"): {"epochs": 40, "batch_size": 64},
+    ("resnet",   "tiny-imagenet-200"): {"epochs": 20, "batch_size": 128},
+    ("convnext", "tiny-imagenet-200"): {"epochs": 20, "batch_size": 128},
+    ("vgg",      "tiny-imagenet-200"): {"epochs": 20, "batch_size": 128},
 }
 
-
-# ── config merge ─────────────────────────────────────────────────────────────
 
 def run_config(teacher_key: str, dataset: str, cli_overrides: dict[str, Any]) -> dict[str, Any]:
     """Merges DEFAULTS, per-run overrides, and explicit CLI flags."""
@@ -92,8 +69,6 @@ def run_config(teacher_key: str, dataset: str, cli_overrides: dict[str, Any]) ->
     cfg.update({k: v for k, v in cli_overrides.items() if v is not None})
     return cfg
 
-
-# ── CLI ───────────────────────────────────────────────────────────────────────
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__,
@@ -104,7 +79,6 @@ def parse_args() -> argparse.Namespace:
                    help="Datasets to run (default: DATASETS list above).")
     p.add_argument("--students-json", default=None,
                    help="Explicit path to student JSON (overrides auto-resolution).")
-    # Hyperparams — all default to None so they only override when explicitly passed.
     p.add_argument("--epochs",        type=int,   default=None)
     p.add_argument("--batch-size",    type=int,   default=None)
     p.add_argument("--num-workers",   type=int,   default=4)
@@ -141,8 +115,6 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
-# ── helpers ───────────────────────────────────────────────────────────────────
-
 def _cli_overrides(args: argparse.Namespace) -> dict[str, Any]:
     """Extracts only the hyperparameter flags (those that may be None)."""
     return {
@@ -174,28 +146,24 @@ def _load_teacher(teacher_key: str, dataset: str, num_classes: int, device: torc
     )
 
 
-# ── main ──────────────────────────────────────────────────────────────────────
-
 def main() -> None:
-    args        = parse_args()
-    device      = torch.device(args.device)
-    cli_ovr     = _cli_overrides(args)
+    args = parse_args()
+    device = torch.device(args.device)
+    cli_ovr = _cli_overrides(args)
     active_teachers = args.teachers or TEACHERS
     active_datasets = args.datasets or DATASETS
 
     for dataset in active_datasets:
-        # Resolve the student JSON for this dataset.
         if args.students_json:
             json_path = Path(args.students_json)
         else:
             json_path = Path(__file__).resolve().parent / f"students_{dataset}.json"
         if not json_path.exists():
             raise FileNotFoundError(
-                f"Student JSON not found: {json_path}\n"
-                f"Run: python src/phase2/gen_students.py --datasets {dataset}"
+                f"Student JSON not found: {json_path}\n Run: python src/phase2/gen_students.py --datasets {dataset}"
             )
         students_cfg = json.loads(json_path.read_text(encoding="utf-8"))
-        num_classes  = students_cfg[0]["num_classes"]
+        num_classes = students_cfg[0]["num_classes"]
 
         out_dir = WEIGHTS_DIR / dataset
         if args.tag:
@@ -206,18 +174,15 @@ def main() -> None:
         if not 1 <= start_at <= len(students_cfg):
             raise ValueError(f"--start-at must be in [1, {len(students_cfg)}].")
 
-        summary_path   = out_dir / "summary.json"
+        summary_path = out_dir / "summary.json"
         summary_by_id: dict[str, dict] = {}
         if summary_path.exists():
             for entry in json.loads(summary_path.read_text(encoding="utf-8")):
                 summary_by_id[entry["id"]] = entry
 
         print("=" * 100)
-        print(f"DATASET: {dataset} | classes: {num_classes} | "
-              f"teachers: {active_teachers} | students: {len(students_cfg)} | "
-              f"start-at: {start_at} | device: {device} | weights -> {out_dir}")
+        print(f"DATASET: {dataset} | classes: {num_classes} | teachers: {active_teachers} | students: {len(students_cfg)} | start-at: {start_at} | device: {device} | weights -> {out_dir}")
 
-        # Group students by teacher, filtered to active_teachers.
         groups: dict[str, list[tuple[int, dict]]] = {}
         for idx, cfg in enumerate(students_cfg, start=1):
             if idx < start_at:
@@ -234,7 +199,6 @@ def main() -> None:
         for teacher_key, members in groups.items():
             cfg_run = run_config(teacher_key, dataset, cli_ovr)
 
-            # Load data here so batch_size from cfg_run is used.
             train_loader, val_loader, _, _ = get_dataloaders(
                 dataset_name=dataset,
                 data_root=DATA_ROOT,
@@ -249,16 +213,11 @@ def main() -> None:
             teacher = teacher_cache[teacher_key]
 
             print("-" * 100)
-            print(f"Teacher: {teacher_key} ({_BACKBONE[teacher_key]}, "
-                  f"ckpt={CKPT_MODE[teacher_key]}) | {len(members)} student(s) | "
-                  f"epochs={cfg_run['epochs']} batch={cfg_run['batch_size']} "
-                  f"enc_lr={cfg_run['encoder_lr']} mse={cfg_run['mse_weight']} "
-                  f"ce={cfg_run['ce_weight']} kd={cfg_run['kd_weight']} "
-                  f"rkd={cfg_run['rkd_weight']}")
+            print(f"Teacher: {teacher_key} ({_BACKBONE[teacher_key]}, ckpt={CKPT_MODE[teacher_key]}) | {len(members)} student(s) | epochs={cfg_run['epochs']} batch={cfg_run['batch_size']} enc_lr={cfg_run['encoder_lr']} mse={cfg_run['mse_weight']} ce={cfg_run['ce_weight']} kd={cfg_run['kd_weight']} rkd={cfg_run['rkd_weight']}")
 
-            models:     list[Student] = []
-            save_paths: list[str]     = []
-            ids:        list[str]     = []
+            models: list[Student] = []
+            save_paths: list[str] = []
+            ids: list[str] = []
 
             for idx, scfg in members:
                 set_seed(SEED)
@@ -271,9 +230,7 @@ def main() -> None:
                     freeze_classifier=args.freeze_classifier,
                 )
                 enc_p = count_parameters(student.encoder) + count_parameters(student.predictor)
-                print(f"  [{idx}/{len(students_cfg)}] {scfg['id']} | "
-                      f"mode={scfg['target_mode']} convs={scfg['n_convs']} | "
-                      f"trainable enc+pred: {enc_p:,}")
+                print(f"  [{idx}/{len(students_cfg)}] {scfg['id']} | mode={scfg['target_mode']} convs={scfg['n_convs']} | trainable enc+pred: {enc_p:,}")
                 models.append(student)
                 save_paths.append(str(out_dir / f"{scfg['id']}.pth"))
                 ids.append(scfg["id"])
@@ -324,7 +281,6 @@ def main() -> None:
                              ("mse_weight", "ce_weight", "kd_weight",
                               "rkd_weight", "T")},
                 }
-            # Incremental write per teacher group — crash-safe.
             summary = [summary_by_id[c["id"]] for c in students_cfg
                        if c["id"] in summary_by_id]
             summary_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")

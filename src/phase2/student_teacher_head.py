@@ -1,34 +1,3 @@
-"""Student whose final conv matches the teacher's channel count + glued head.
-
-Design
-------
-The config-driven conv backbone (the JSON ``layer*`` blocks) is built so its
-**final conv outputs ``teacher_dim`` channels** (2048 for ResNet-50, 1024 for
-ConvNeXt-Base, 512 for VGG-16) -- i.e. the student's last conv map has the same
-channel count as the teacher's::
-
-    encoder convs -> [teacher_dim, H, W]
-
-On this map the teacher's *full* pretrained head is glued (its own
-avgpool / flatten / linear, see :func:`teacher_head`), so the head's pooling
-handles the spatial size (1x1 for ResNet/ConvNeXt, 7x7 for VGG) -- every teacher
-works, including VGG (whose head flattens its 7x7 map -> 512*7*7 = 25088).
-
-Distillation target -- :meth:`pooled_feature` (used by :meth:`project` and the
-training loop) reproduces the head's pre-Linear transform so it matches exactly
-what the teacher's final Linear consumes:
-
-- ResNet-50: ``AdaptiveAvgPool2d(1)`` -> post-GAP ``[teacher_dim]``.
-- ConvNeXt-Base: ``AdaptiveAvgPool2d(1)`` -> ``LayerNorm2d`` -> post-GAP, post-
-  norm ``[teacher_dim]`` (the head normalizes the pooled map before its Linear).
-- VGG-16: ``AdaptiveAvgPool2d(7)`` -> ``[512, 7, 7]`` flattened to 25088 -- the
-  spatial map the VGG classifier actually uses (its features feed the flattened
-  7x7 map, not a post-GAP vector).
-
-Because there is no separate projection, the backbone's final conv *must* output
-``teacher_dim`` channels (asserted in ``__init__``).
-"""
-
 import copy
 
 import torch
@@ -36,7 +5,6 @@ from torch import nn
 
 
 def _build_modules(attribute: dict) -> list[nn.Module]:
-    """Builds the torch modules for a single layer spec (self-contained)."""
     kind = attribute["type"]
 
     if kind == "conv2d":
@@ -99,15 +67,28 @@ def _build_modules(attribute: dict) -> list[nn.Module]:
 class ResidualBlock(nn.Module):
     def __init__(self, in_channels, out_channels, stride=1, groups=1):
         super().__init__()
-        # Caminho principal (2 convoluções 3x3). ``groups`` divide os params das
-        # convs por g (grouped conv) -- usado nos archs grandes p/ caber em 3M.
-        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1, groups=groups, bias=False)
+        self.conv1 = nn.Conv2d(
+            in_channels,
+            out_channels,
+            kernel_size=3,
+            stride=stride,
+            padding=1,
+            groups=groups,
+            bias=False,
+        )
         self.bn1 = nn.BatchNorm2d(out_channels)
         self.gelu = nn.GELU()
-        self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, groups=groups, bias=False)
+        self.conv2 = nn.Conv2d(
+            out_channels,
+            out_channels,
+            kernel_size=3,
+            stride=1,
+            padding=1,
+            groups=groups,
+            bias=False,
+        )
         self.bn2 = nn.BatchNorm2d(out_channels)
 
-        # Caminho de atalho (skip): 1x1 (groups=1) só quando muda dims/stride.
         self.shortcut = nn.Sequential()
         if stride != 1 or in_channels != out_channels:
             self.shortcut = nn.Sequential(
@@ -124,9 +105,6 @@ class ResidualBlock(nn.Module):
 
 
 class StudentTeacherHead(nn.Module):
-    """Conv backbone ending in teacher_dim channels + glued teacher head."""
-
-    # Tail blocks are owned by the model/head, not the JSON.
     SKIP_BLOCKS = ("avgpool", "flatten", "project", "classifier")
 
     def __init__(
@@ -143,7 +121,6 @@ class StudentTeacherHead(nn.Module):
         self.num_classes = num_classes
         self.kind = kind
 
-        # Conv backbone from the JSON, tracking the last conv's channel count.
         blocks = []
         last_channels = None
         for block in layers:
@@ -161,31 +138,19 @@ class StudentTeacherHead(nn.Module):
             raise ValueError("No conv2d layer found in the backbone.")
         if last_channels != teacher_dim:
             raise ValueError(
-                f"Final conv must output teacher_dim={teacher_dim} channels to match "
-                f"the glued head (no projection layer); got {last_channels}."
+                f"Final conv must output teacher_dim={teacher_dim} channels to match the glued head (no projection layer); got {last_channels}."
             )
 
         self.encoder = nn.Sequential(*blocks)
-        # Teacher's full pretrained head ([teacher_dim, H, W] -> logits). Named
-        # "classifier" so the optimizer's name-based encoder/head split works.
-        # ``head[0]`` is the teacher's avgpool, reused by :meth:`project`.
         self.classifier = head
         if freeze_head:
             for param in self.classifier.parameters():
                 param.requires_grad = False
 
     def pooled_feature(self, fmap):
-        """Pre-Linear representation the teacher's classifier consumes, computed
-        from the student's final conv map.
-
-        Mirrors the tail of ``distill.teacher_encode`` (keep the two in sync):
-        post-GAP for ResNet-50 / VGG-16, and post-GAP **+ LayerNorm** for
-        ConvNeXt-Base, whose ``classifier`` normalizes the pooled map before the
-        Linear -- so the student must apply that ``LayerNorm2d`` as well.
-        """
-        x = self.classifier[0](fmap)          # teacher avgpool (every kind)
+        x = self.classifier[0](fmap)
         if self.kind == "convnext_base":
-            x = self.classifier[1][0](x)      # LayerNorm2d, applied before the Linear
+            x = self.classifier[1][0](x)
         return torch.flatten(x, 1)
 
     def project(self, x):
@@ -198,24 +163,11 @@ class StudentTeacherHead(nn.Module):
 
 
 def teacher_head(teacher: nn.Module, kind: str) -> nn.Module:
-    """Returns a deep copy of the teacher's *full* head: [C_t, H, W] -> logits.
-
-    Deep-copied so fine-tuning the student's head does not mutate the (frozen)
-    teacher used for KD targets. Each head replicates the teacher's forward from
-    the final conv map onward -- its own avgpool, the flatten where the teacher
-    keeps one, and the linear classifier.
-
-    Args:
-        teacher: A loaded torchvision teacher with its Oxford-Pets head.
-        kind: One of ``resnet50``, ``convnext_base``, ``vgg16``.
-    """
+    """Returns a deep copy of the teacher's full head."""
     if kind == "resnet50":
-        # [2048,H,W] -> avgpool(1) -> flatten -> fc
         return copy.deepcopy(nn.Sequential(teacher.avgpool, nn.Flatten(1), teacher.fc))
     if kind == "convnext_base":
-        # [1024,H,W] -> avgpool(1) -> classifier(LayerNorm2d, Flatten, Linear)
         return copy.deepcopy(nn.Sequential(teacher.avgpool, teacher.classifier))
     if kind == "vgg16":
-        # [512,H,W] -> avgpool(7) -> flatten -> classifier(25088 -> ... -> num_classes)
         return copy.deepcopy(nn.Sequential(teacher.avgpool, nn.Flatten(1), teacher.classifier))
     raise ValueError(f"Unknown teacher kind: {kind}")

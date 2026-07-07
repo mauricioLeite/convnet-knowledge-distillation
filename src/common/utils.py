@@ -1,5 +1,3 @@
-"""Utilities for data loading, reproducibility, profiling, plotting, and CSVs."""
-
 from __future__ import annotations
 
 import random
@@ -20,14 +18,6 @@ IMAGENET_STD = (0.229, 0.224, 0.225)
 
 
 class TinyImageNetValDataset(Dataset):
-    """Tiny ImageNet validation split labeled by ``val_annotations.txt``.
-
-    Args:
-        val_root: Path to ``tiny-imagenet-200/val``.
-        class_to_idx: Mapping from WordNet IDs to integer class labels.
-        transform: Optional transform applied to each image.
-    """
-
     def __init__(
         self,
         val_root: str | Path,
@@ -72,18 +62,9 @@ class TinyImageNetValDataset(Dataset):
         self.targets = [target for _, target in self.samples]
 
     def __len__(self) -> int:
-        """Returns the number of labeled validation images."""
         return len(self.samples)
 
     def __getitem__(self, index: int) -> tuple[torch.Tensor, int]:
-        """Loads an image and its integer target.
-
-        Args:
-            index: Dataset index.
-
-        Returns:
-            Transformed image and target label.
-        """
         image_path, target = self.samples[index]
         image = Image.open(image_path).convert("RGB")
         if self.transform is not None:
@@ -92,11 +73,6 @@ class TinyImageNetValDataset(Dataset):
 
 
 def set_seed(seed: int) -> None:
-    """Sets Python, NumPy, and PyTorch random seeds.
-
-    Args:
-        seed: Seed value for all supported random generators.
-    """
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -106,14 +82,6 @@ def set_seed(seed: int) -> None:
 
 
 def count_parameters(model: nn.Module) -> int:
-    """Counts trainable parameters.
-
-    Args:
-        model: PyTorch module.
-
-    Returns:
-        Number of parameters with ``requires_grad=True``.
-    """
     return sum(
         parameter.numel()
         for parameter in model.parameters()
@@ -122,14 +90,6 @@ def count_parameters(model: nn.Module) -> int:
 
 
 def count_total_parameters(model: nn.Module) -> int:
-    """Counts all model parameters.
-
-    Args:
-        model: PyTorch module.
-
-    Returns:
-        Total parameter count.
-    """
     return sum(parameter.numel() for parameter in model.parameters())
 
 
@@ -137,15 +97,6 @@ def compute_flops(
     model: nn.Module,
     input_size: tuple[int, int, int, int] = (1, 3, 224, 224),
 ) -> float:
-    """Computes model complexity in GFLOPs using fvcore.
-
-    Args:
-        model: PyTorch module to analyze.
-        input_size: Dummy input shape.
-
-    Returns:
-        Total GFLOPs for one forward pass.
-    """
     from fvcore.nn import FlopCountAnalysis
 
     try:
@@ -168,17 +119,6 @@ def plot_training_curves(
     title: str,
     save_path: Optional[str | Path] = None,
 ) -> Any:
-    """Plots train/validation loss and accuracy curves.
-
-    Args:
-        history: History returned by ``train_teacher_classifier``.
-        title: Figure title.
-        save_path: Optional output image path. Bare filenames are saved under
-            ``results/figures``.
-
-    Returns:
-        Created matplotlib figure.
-    """
     import matplotlib.pyplot as plt
 
     epochs = range(1, len(history.get("train_loss", [])) + 1)
@@ -219,20 +159,6 @@ def save_training_history_csv(
     teacher_name: str,
     dataset_name: str,
 ) -> pd.DataFrame:
-    """Saves per-epoch metrics used to draw a training-curve figure.
-
-    Args:
-        history: History returned by ``train_teacher_classifier``.
-        save_path: Destination CSV path.
-        teacher_name: Teacher backbone identifier.
-        dataset_name: Dataset identifier.
-
-    Returns:
-        DataFrame written to disk, suitable for aggregate concatenation.
-
-    Raises:
-        ValueError: If the four metric series do not have equal lengths.
-    """
     train_loss = history.get("train_loss", [])
     train_acc = history.get("train_acc", [])
     val_loss = history.get("val_loss", [])
@@ -264,53 +190,22 @@ def get_dataloaders(
     batch_size: int,
     num_workers: int,
 ) -> tuple[DataLoader, DataLoader, DataLoader, int]:
-    """Builds train, validation, and test DataLoaders for a supported dataset.
-
-    Args:
-        dataset_name: Dataset identifier or common alias.
-        data_root: Root directory containing dataset folders.
-        batch_size: Batch size for all DataLoaders.
-        num_workers: Number of DataLoader workers.
-
-    Returns:
-        Tuple ``(train_loader, val_loader, test_loader, num_classes)``.
-    """
-    canonical_name = _normalize_dataset_name(dataset_name)
-    random_resized_crop_scale = (
-        (0.7, 1.0)
-        if canonical_name == "stanford-cars"
-        else (0.08, 1.0)
-    )
-    train_transform, eval_transform = _build_transforms(
-        random_resized_crop_scale=random_resized_crop_scale
-    )
+    train_transform, eval_transform = _build_transforms()
     root = Path(data_root)
 
-    if canonical_name == "cifar-100":
-        datasets_and_classes = _load_cifar100(
-            root,
-            train_transform,
-            eval_transform,
-        )
-    elif canonical_name == "flowers-102":
+    if dataset_name == "flowers-102":
         datasets_and_classes = _load_flowers102(
             root,
             train_transform,
             eval_transform,
         )
-    elif canonical_name == "stanford-cars":
-        datasets_and_classes = _load_stanford_cars(
-            root,
-            train_transform,
-            eval_transform,
-        )
-    elif canonical_name == "tiny-imagenet-200":
+    elif dataset_name == "tiny-imagenet-200":
         datasets_and_classes = _load_tiny_imagenet(
             root,
             train_transform,
             eval_transform,
         )
-    elif canonical_name == "oxford-pets":
+    elif dataset_name == "oxford-pets":
         datasets_and_classes = _load_oxford_pets(
             root,
             train_transform,
@@ -341,35 +236,10 @@ def get_dataloaders(
     return train_loader, val_loader, test_loader, num_classes
 
 
-def _normalize_dataset_name(dataset_name: str) -> str:
-    name = dataset_name.lower().replace("_", "-")
-    aliases = {
-        "cifar100": "cifar-100",
-        "cifar-100": "cifar-100",
-        "flowers102": "flowers-102",
-        "flowers-102": "flowers-102",
-        "stanfordcars": "stanford-cars",
-        "stanford-cars": "stanford-cars",
-        "tinyimagenet": "tiny-imagenet-200",
-        "tiny-imagenet": "tiny-imagenet-200",
-        "tiny-imagenet-200": "tiny-imagenet-200",
-        "pets": "oxford-pets",
-        "oxfordpets": "oxford-pets",
-        "oxford-pets": "oxford-pets",
-        "oxford-iiit-pet": "oxford-pets",
-    }
-    return aliases.get(name, name)
-
-
-def _build_transforms(
-    random_resized_crop_scale: tuple[float, float] = (0.08, 1.0),
-) -> tuple[transforms.Compose, transforms.Compose]:
+def _build_transforms() -> tuple[transforms.Compose, transforms.Compose]:
     train_transform = transforms.Compose(
         [
-            transforms.RandomResizedCrop(
-                224,
-                scale=random_resized_crop_scale,
-            ),
+            transforms.RandomResizedCrop(224, scale=(0.08, 1.0)),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD),
@@ -455,39 +325,6 @@ def _make_loader(
     )
 
 
-def _load_cifar100(
-    data_root: Path,
-    train_transform: transforms.Compose,
-    eval_transform: transforms.Compose,
-) -> tuple[Dataset, Dataset, Dataset, int]:
-    root = _resolve_dataset_root(data_root, "cifar-100")
-    train_full = datasets.CIFAR100(
-        root=str(root),
-        train=True,
-        transform=train_transform,
-        download=False,
-    )
-    val_full = datasets.CIFAR100(
-        root=str(root),
-        train=True,
-        transform=eval_transform,
-        download=False,
-    )
-    test_dataset = datasets.CIFAR100(
-        root=str(root),
-        train=False,
-        transform=eval_transform,
-        download=False,
-    )
-    train_indices, val_indices = _split_indices(len(train_full))
-    return (
-        _make_subset(train_full, train_indices),
-        _make_subset(val_full, val_indices),
-        test_dataset,
-        len(train_full.classes),
-    )
-
-
 def _load_flowers102(
     data_root: Path,
     train_transform: transforms.Compose,
@@ -514,59 +351,6 @@ def _load_flowers102(
             download=False,
         ),
         102,
-    )
-
-
-def _load_stanford_cars(
-    data_root: Path,
-    train_transform: transforms.Compose,
-    eval_transform: transforms.Compose,
-) -> tuple[Dataset, Dataset, Dataset, int]:
-    root = _resolve_dataset_root(data_root, "stanford-cars")
-    train_dir = root / "train"
-    test_dir = root / "test"
-
-    if train_dir.exists() and test_dir.exists():
-        train_full = datasets.ImageFolder(
-            root=str(train_dir),
-            transform=train_transform,
-        )
-        val_full = datasets.ImageFolder(
-            root=str(train_dir),
-            transform=eval_transform,
-        )
-        test_dataset = datasets.ImageFolder(
-            root=str(test_dir),
-            transform=eval_transform,
-        )
-        num_classes = len(train_full.classes)
-    else:
-        train_full = datasets.StanfordCars(
-            root=str(root),
-            split="train",
-            transform=train_transform,
-            download=False,
-        )
-        val_full = datasets.StanfordCars(
-            root=str(root),
-            split="train",
-            transform=eval_transform,
-            download=False,
-        )
-        test_dataset = datasets.StanfordCars(
-            root=str(root),
-            split="test",
-            transform=eval_transform,
-            download=False,
-        )
-        num_classes = len(getattr(train_full, "classes", [])) or 196
-
-    train_indices, val_indices = _split_indices(len(train_full))
-    return (
-        _make_subset(train_full, train_indices),
-        _make_subset(val_full, val_indices),
-        test_dataset,
-        num_classes,
     )
 
 
@@ -605,9 +389,6 @@ def _load_oxford_pets(
     train_transform: transforms.Compose,
     eval_transform: transforms.Compose,
 ) -> tuple[Dataset, Dataset, Dataset, int]:
-    # TorchVision manages its own "oxford-iiit-pet" subfolder, so the dataset
-    # lives at ``<data_root>/oxford-iiit-pet`` (matching ``root="data"`` used to
-    # download it).
     root = Path(data_root)
     # Oxford Pets uses a milder Resize(256) + RandomCrop(224) augmentation
     # instead of the shared RandomResizedCrop; the eval transform is unchanged.

@@ -1,5 +1,3 @@
-"""Training and evaluation loops for Phase 1 teacher classifiers."""
-
 from __future__ import annotations
 
 from pathlib import Path
@@ -11,7 +9,6 @@ from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 
 from src.phase1.teachers import TeacherModel
-
 
 def _resolve_device(device: str | torch.device) -> torch.device:
     requested = torch.device(device)
@@ -25,16 +22,6 @@ def evaluate(
     loader: DataLoader,
     device: str | torch.device,
 ) -> tuple[float, float]:
-    """Evaluates a teacher classifier.
-
-    Args:
-        model: Teacher model with a classifier head.
-        loader: DataLoader yielding ``(images, labels)`` batches.
-        device: Torch device name or object.
-
-    Returns:
-        Tuple ``(average_loss, accuracy_percent)``.
-    """
     device_obj = _resolve_device(device)
     criterion = nn.CrossEntropyLoss()
     model.to(device_obj)
@@ -73,23 +60,6 @@ def train_teacher_classifier(
     checkpoint_path: Optional[str] = None,
     patience: int = 0,
 ) -> dict[str, list[float] | float | int]:
-    """Trains only the teacher model's linear classifier head.
-
-    Args:
-        model: Teacher model whose encoder is frozen.
-        train_loader: DataLoader for training batches.
-        val_loader: DataLoader for validation batches.
-        num_epochs: Number of training epochs.
-        lr: AdamW learning rate.
-        weight_decay: AdamW weight decay.
-        device: Torch device name.
-        checkpoint_path: Optional path for the best classifier checkpoint.
-        patience: Early-stopping patience in epochs (0 = disabled).
-
-    Returns:
-        History dictionary containing per-epoch train/validation metrics,
-        ``best_val_acc``, and ``best_epoch``. Accuracies are percentages.
-    """
     device_obj = _resolve_device(device)
     model.to(device_obj)
     criterion = nn.CrossEntropyLoss()
@@ -211,44 +181,11 @@ def train_teacher_finetune(
     checkpoint_path: Optional[str] = None,
     patience: int = 0,
 ) -> dict[str, list[float] | float | int]:
-    """Trains the teacher with a partially unfrozen encoder (light fine-tuning).
-
-    The head receives the full learning rate. Unfrozen encoder blocks receive
-    ``encoder_lr``, scaled by ``lr_decay`` per block going deeper (LLRD). The
-    encoder must have been partially unfrozen via ``model.unfreeze_top()``
-    before calling this function. The encoder is kept in eval mode throughout so
-    that BatchNorm running statistics are never updated.
-
-    Args:
-        model: Teacher with at least one encoder block unfrozen.
-        train_loader: DataLoader for training batches.
-        val_loader: DataLoader for validation batches.
-        num_epochs: Number of fine-tuning epochs.
-        lr: AdamW learning rate for the linear head.
-        encoder_lr: Base learning rate for the topmost unfrozen encoder block.
-        lr_decay: LR multiplier applied per block going deeper (LLRD).
-        weight_decay: AdamW weight decay applied to all parameter groups.
-        label_smoothing: Cross-entropy label smoothing (0 = standard CE).
-        n_blocks: Number of encoder blocks that were unfrozen; stored in the
-            checkpoint for downstream phases.
-        device: Torch device name.
-        checkpoint_path: Optional path for the best fine-tuned checkpoint.
-        patience: Early-stopping patience in epochs (0 = disabled).
-
-    Returns:
-        History dict with per-epoch train/val metrics, ``best_val_acc``, and
-        ``best_epoch``. Accuracies are percentages.
-    """
     device_obj = _resolve_device(device)
     model.to(device_obj)
     use_cuda = device_obj.type == "cuda"
 
     criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
-
-    # Build parameter groups: head at lr, unfrozen encoder blocks with LLRD.
-    # Blocks (within the final encoder stage) are iterated from the top
-    # outward, so the topmost unfrozen block gets encoder_lr and each deeper
-    # block gets * lr_decay.
     param_groups: list[dict] = [
         {"params": list(model.classifier.parameters()), "lr": lr},
     ]
@@ -367,4 +304,3 @@ def train_teacher_finetune(
             break
 
     return history
-

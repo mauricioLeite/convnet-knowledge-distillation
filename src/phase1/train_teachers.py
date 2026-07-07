@@ -1,4 +1,3 @@
-"""Train and evaluate the Phase 1 teacher models. """
 from __future__ import annotations
 
 import argparse
@@ -8,10 +7,6 @@ from pathlib import Path
 from typing import Any
 
 import matplotlib
-
-matplotlib.use("Agg")
-
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
@@ -23,7 +18,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from src.phase1.teachers import TeacherModel
 from src.phase1.train import evaluate, train_teacher_classifier, train_teacher_finetune
-from src.phase1.utils import (
+from src.common.utils import (
     IMAGENET_MEAN,
     IMAGENET_STD,
     compute_flops,
@@ -35,6 +30,9 @@ from src.phase1.utils import (
     set_seed,
 )
 
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
 SEED = 291652
 DATA_ROOT = PROJECT_ROOT / "data"
 CHECKPOINT_DIR = PROJECT_ROOT / "outputs" / "checkpoints" / "teachers"
@@ -43,8 +41,7 @@ TABLE_DIR = PROJECT_ROOT / "outputs" / "tables"
 
 TEACHERS = ("resnet50", "convnext_base", "vgg16_bn")
 FINETUNE_TEACHERS = ("resnet50", "convnext_base")
-# DATASETS = ("oxford-pets", "flowers-102", "tiny-imagenet-200")
-DATASETS = ("oxford-pets", "flowers-102")
+DATASETS = ("oxford-pets", "flowers-102", "tiny-imagenet-200")
 NUM_WORKERS = 8
 
 DEFAULTS: dict[str, Any] = {
@@ -57,13 +54,13 @@ DEFAULTS: dict[str, Any] = {
 
 RUN_OVERRIDES: dict[tuple[str, str], dict[str, Any]] = {
     ("convnext_base", "oxford-pets"):         {"num_epochs": 20},
-    # ("convnext_base", "tiny-imagenet-200"): {"num_epochs": 20},
+    ("convnext_base", "tiny-imagenet-200"): {"num_epochs": 20},
     ("convnext_base", "flowers-102"):       {"num_epochs": 30, "batch_size": 64},
     ("resnet50", "oxford-pets"):              {"num_epochs": 20},
-    # ("resnet50", "tiny-imagenet-200"):      {"num_epochs": 20},
+    ("resnet50", "tiny-imagenet-200"):      {"num_epochs": 20},
     ("resnet50", "flowers-102"):            {"num_epochs": 30, "batch_size": 64},
     ("vgg16_bn", "oxford-pets"):             {"num_epochs": 20},
-    # ("vgg16_bn", "tiny-imagenet-200"):       {"num_epochs": 20},
+    ("vgg16_bn", "tiny-imagenet-200"):       {"num_epochs": 20},
     ("vgg16_bn", "flowers-102"):             {"num_epochs": 30, "batch_size": 64},
 }
 
@@ -81,15 +78,15 @@ DEFAULTS_FT: dict[str, Any] = {
 
 RUN_OVERRIDES_FT: dict[tuple[str, str], dict[str, Any]] = {
     ("convnext_base", "oxford-pets"):         {"num_epochs": 15},
-    # ("convnext_base", "tiny-imagenet-200"): {"num_epochs": 20},
+    ("convnext_base", "tiny-imagenet-200"): {"num_epochs": 20},
     ("convnext_base", "flowers-102"):       {"num_epochs": 20, "batch_size": 64},
     ("resnet50", "oxford-pets"):              {"num_epochs": 20},
-    # ("resnet50", "tiny-imagenet-200"):      {"num_epochs": 20},
+    ("resnet50", "tiny-imagenet-200"):      {"num_epochs": 20},
     ("resnet50", "flowers-102"):            {"num_epochs": 20, "batch_size": 64},
 }
 
 def parse_args() -> argparse.Namespace:
-    """Parses the two stage-skip options."""
+    """Parses training-stage and figure-rendering options."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--skip-frozen",
@@ -101,10 +98,25 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Skip light fine-tuning for ResNet-50 and ConvNeXt-Tiny.",
     )
+    parser.add_argument(
+        "--render-feature-maps-only",
+        action="store_true",
+        help="Render feature maps from existing checkpoints without training.",
+    )
+    parser.add_argument(
+        "--no-title",
+        action="store_true",
+        help="Omit the figure-level title and overwrite the canonical figure files.",
+    )
+    parser.add_argument(
+        "--datasets",
+        nargs="+",
+        choices=("oxford-pets", "flowers-102", "tiny-imagenet-200"),
+        help="Override the configured dataset list.",
+    )
     return parser.parse_args()
 
 def ensure_directories() -> None:
-    """Creates output directories used by the notebook pipeline."""
     for directory in (
         CHECKPOINT_DIR / "frozen",
         CHECKPOINT_DIR / "finetune",
@@ -119,7 +131,6 @@ def checkpoint_path(
     dataset_name: str,
     mode: str = "frozen",
 ) -> Path:
-    """Returns the checkpoint path for a teacher, dataset, and training mode."""
     return CHECKPOINT_DIR / mode / f"{teacher_name}_{dataset_name}.pth"
 
 
@@ -128,7 +139,6 @@ def history_csv_path(
     dataset_name: str,
     mode: str = "frozen",
 ) -> Path:
-    """Returns the per-run training-history CSV path."""
     return TABLE_DIR / f"training_history_{mode}_{teacher_name}_{dataset_name}.csv"
 
 
@@ -139,7 +149,6 @@ def run_config(
     dataset_name: str,
     num_epochs: int | None,
 ) -> dict[str, Any]:
-    """Combines defaults, per-run overrides, and an optional CLI epoch count."""
     config = {**defaults, **overrides.get((teacher_name, dataset_name), {})}
     if num_epochs is not None:
         config["num_epochs"] = num_epochs
@@ -158,7 +167,6 @@ def describe_model(
     loader: torch.utils.data.DataLoader,
     device: str,
 ) -> None:
-    """Prints the notebook's model summary for one input sample."""
     model.to(device)
     model.eval()
     images, _ = next(iter(loader))
@@ -181,7 +189,6 @@ def write_combined_histories(
     datasets: list[str],
     mode: str,
 ) -> None:
-    """Combines every available per-run history CSV for the selected runs."""
     frames = []
     for teacher_name in teachers:
         for dataset_name in datasets:
@@ -201,7 +208,6 @@ def train_frozen_teachers(
     num_workers: int,
     device: str,
 ) -> None:
-    """Trains fresh linear heads over frozen ImageNet encoders."""
     for teacher_name in teachers:
         for dataset_name in datasets:
             config = run_config(
@@ -284,7 +290,6 @@ def evaluate_teachers(
     device: str,
     mode: str,
 ) -> pd.DataFrame:
-    """Evaluates available checkpoints and writes a result table."""
     results = []
     flop_cache: dict[tuple[str, int], float] = {}
     defaults = DEFAULTS if mode == "frozen" else DEFAULTS_FT
@@ -366,7 +371,6 @@ def evaluate_teachers(
 
 
 def unnormalize(image: torch.Tensor) -> np.ndarray:
-    """Converts an ImageNet-normalized CHW tensor to an HWC NumPy image."""
     mean = torch.tensor(IMAGENET_MEAN, dtype=image.dtype).view(3, 1, 1)
     std = torch.tensor(IMAGENET_STD, dtype=image.dtype).view(3, 1, 1)
     image = (image.cpu() * std + mean).clamp(0, 1)
@@ -378,8 +382,8 @@ def render_feature_maps(
     datasets: list[str],
     num_workers: int,
     device: str,
+    no_title: bool = False,
 ) -> None:
-    """Saves the notebook's mean-activation feature-map visualizations."""
     for dataset_name in datasets:
         _, _, test_loader, num_classes = get_dataloaders(
             dataset_name=dataset_name,
@@ -429,7 +433,8 @@ def render_feature_maps(
             del model
             cleanup_cuda()
 
-        figure.suptitle(f"Feature map mean activation: {dataset_name}")
+        if not no_title:
+            figure.suptitle(f"Feature map mean activation: {dataset_name}")
         figure.tight_layout()
         figure.savefig(
             FIGURE_DIR / f"feature_maps_{dataset_name}.png",
@@ -447,7 +452,6 @@ def train_finetuned_teachers(
     num_workers: int,
     device: str,
 ) -> None:
-    """Lightly fine-tunes supported encoders after frozen-head warm-up."""
     selected_teachers = [
         teacher_name
         for teacher_name in teachers
@@ -546,7 +550,6 @@ def train_finetuned_teachers(
 
 
 def write_comparison_table() -> None:
-    """Writes a side-by-side frozen versus fine-tuned result table."""
     frozen_csv = TABLE_DIR / "teacher_results.csv"
     finetune_csv = TABLE_DIR / "teacher_results_finetune.csv"
     frames = []
@@ -570,51 +573,62 @@ def write_comparison_table() -> None:
         TABLE_DIR / "teacher_results_comparison.csv",
         index=False,
     )
-    print("Saved results/tables/teacher_results_comparison.csv")
+    print("Saved outputs/tables/teacher_results_comparison.csv")
 
 
 def main() -> None:
-    """Runs the configured notebook-equivalent stages."""
     args = parse_args()
     ensure_directories()
     set_seed(SEED)
     device = "cuda" if torch.cuda.is_available() else "cpu"
+    selected_datasets = args.datasets or list(DATASETS)
     print(f"Project root: {PROJECT_ROOT}")
     print(f"Device: {device}")
+
+    if args.render_feature_maps_only:
+        render_feature_maps(
+            teachers=list(TEACHERS),
+            datasets=selected_datasets,
+            num_workers=NUM_WORKERS,
+            device=device,
+            no_title=args.no_title,
+        )
+        return
 
     if not args.skip_frozen:
         train_frozen_teachers(
             teachers=list(TEACHERS),
-            datasets=list(DATASETS),
+            datasets=selected_datasets,
             num_workers=NUM_WORKERS,
             device=device,
         )
         evaluate_teachers(
             teachers=list(TEACHERS),
-            datasets=list(DATASETS),
+            datasets=selected_datasets,
             num_workers=NUM_WORKERS,
             device=device,
             mode="frozen",
         )
         render_feature_maps(
             teachers=list(TEACHERS),
-            datasets=list(DATASETS),
+            datasets=selected_datasets,
             num_workers=NUM_WORKERS,
             device=device,
+            no_title=args.no_title,
         )
 
     if not args.skip_finetune:
         finetune_teachers = list(FINETUNE_TEACHERS)
         train_finetuned_teachers(
             teachers=finetune_teachers,
-            datasets=list(DATASETS),
+            datasets=selected_datasets,
             num_workers=NUM_WORKERS,
             device=device,
         )
 
         evaluate_teachers(
             teachers=finetune_teachers,
-            datasets=list(DATASETS),
+            datasets=selected_datasets,
             num_workers=NUM_WORKERS,
             device=device,
             mode="finetune",

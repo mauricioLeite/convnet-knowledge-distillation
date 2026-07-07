@@ -1,5 +1,3 @@
-# MO434 — Knowledge Distillation Lab
-
 SERVICE   = kd-lab
 CONTAINER = mo434-kd
 IMAGE     = mo434-kd:latest

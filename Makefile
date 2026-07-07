@@ -1,13 +1,13 @@
-SERVICE   = kd-lab
-CONTAINER = mo434-kd
-IMAGE     = mo434-kd:latest
+SERVICE   = kd_lab
+CONTAINER = kd_lab
+IMAGE     = kd_lab:latest
 JUPYTER   = http://localhost:8888
 
 .PHONY: help build up down restart logs shell gpu cuda-check status open clean rebuild purge
 
 help:
 	@echo ""
-	@echo "  MO434 Knowledge Distillation — Docker Environment"
+	@echo "  Knowledge Distillation — Docker Environment"
 	@echo ""
 	@echo "  make build       Build the Docker image"
 	@echo "  make up          Start JupyterLab (detached)"

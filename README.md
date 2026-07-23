@@ -1,5 +1,9 @@
 # Small Students, Big Lessons: Distilling Pretrained Backbones into Lightweight ConvNets
 
+[![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Docker](https://img.shields.io/badge/Docker-supported-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 This repository contains the code for a knowledge distillation study from
 pretrained image classifiers into lightweight convolutional student models.
 

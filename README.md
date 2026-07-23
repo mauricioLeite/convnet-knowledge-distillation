@@ -77,6 +77,9 @@ The default JupyterLab URL is:
 http://localhost:8888
 ```
 
+JupyterLab is configured without a token or password. Use it only on a trusted
+local machine, or add authentication before exposing port 8888 on a network.
+
 Check that CUDA is visible inside the container:
 
 ```bash
@@ -118,8 +121,13 @@ Train students:
 
 ```bash
 docker exec -w /workspace kd_lab python src/phase2/train_students.py \
+  --teachers resnet convnext vgg \
   --datasets oxford-pets flowers-102 tiny-imagenet-200
 ```
+
+The commands must be run in the order shown: student training requires both
+the generated student configuration files and the teacher checkpoints; student
+evaluation requires the resulting student weights and `summary.json` files.
 
 Evaluate students:
 
@@ -133,6 +141,10 @@ Run the loss ablation script:
 ```bash
 docker exec -w /workspace kd_lab bash src/phase2/run_ablation.sh
 ```
+
+This runs six loss configurations for the `arch6_6conv_res` pre-GAP students,
+across all three teachers and datasets. It is substantially more expensive than
+a single training run.
 
 Regenerate plots and analysis tables:
 
@@ -160,11 +172,11 @@ make build              # Build Docker image
 make up                 # Start JupyterLab/container
 make down               # Stop container
 make logs               # Follow container logs
+make sh                 # Open a shell in the container
+make gpu                # Show GPU status
 make cuda-check         # Verify PyTorch CUDA access
-make student-results    # Evaluate students
-make figures-notitle    # Regenerate report figures without titles
-make improvement-figures
-make report-notitle
+make status             # Show container status
+make open               # Print the JupyterLab URL
 ```
 
 ## Outputs
@@ -175,7 +187,6 @@ Generated artifacts are written under `outputs/`, including:
 - `outputs/students/`
 - `outputs/tables/`
 - `outputs/figures/`
-- `outputs/logs/`
 
 These artifacts can be large and are excluded from version control.
 

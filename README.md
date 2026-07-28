@@ -7,6 +7,8 @@
 This repository contains the code for a knowledge distillation study from
 pretrained image classifiers into lightweight convolutional student models.
 
+The official report is available on [Zenodo](https://zenodo.org/records/21521918).
+
 The experiments compare:
 
 - Teacher backbones: VGG16-BN, ResNet-50, and ConvNeXt-Base.
